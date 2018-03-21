@@ -1,0 +1,31 @@
+{
+  "name": "travelapi",
+  "version": "1.0.0",
+  "description": "Restful service to handle travel frontend requests",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/visrahane/Travel-And-Entertainment-Guide-2.git"
+  },
+  "keywords": [
+    "travel"
+  ],
+  "author": "Vishal D. Rahane",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/visrahane/Travel-And-Entertainment-Guide-2/issues"
+  },
+  "homepage": "https://github.com/visrahane/Travel-And-Entertainment-Guide-2#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "request": "^2.85.0",
+    "yelp-fusion": "^2.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.2"
+  }
+}
