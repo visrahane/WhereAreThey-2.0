@@ -6,12 +6,12 @@ const client = yelp.client(apiKey);
 
 //endpoint yelpReviews
 exports.getYelpReviews = function (request, response) {
-    console.log(request.query);
-    var yelpBestMatchJson=getBusinessMatch(function(bestMatchJson){
-        console.log(bestMatchJson.businesses[0].id);//.jsonBody.businesses[0].id
+    console.log("Request:",request.query);
+    var yelpBestMatchJson=getBusinessMatch(request.query,function(bestMatchJson){
+        console.log("bestMatch output:",bestMatchJson.businesses[0].id);//.jsonBody.businesses[0].id
         //call reviews
         client.reviews(bestMatchJson.businesses[0].id).then(reviewResponse => {
-            console.log(reviewResponse.jsonBody.reviews);
+            console.log("Reviews:",reviewResponse.jsonBody.reviews);
             response.send(reviewResponse.jsonBody.reviews);
           }).catch(e => {
             console.log(e);
@@ -24,16 +24,17 @@ exports.getYelpReviews = function (request, response) {
 };
 
 // matchType can be 'lookup' or 'best'
-function getBusinessMatch(callback) {
+function getBusinessMatch(incomingRequest,callback) {
     client.businessMatch('best', {
-        name: 'Pannikin Coffee & Tea',
-        address1: '510 N Coast Hwy 101',
-        address2: 'Encinitas, CA 92024',
-        city: 'Encinitas',
-        state: 'CA',
-        country: 'US'
+        name: incomingRequest.name,
+        address1: incomingRequest.address1,        
+        city: incomingRequest.city,
+        state: incomingRequest.state,
+        country: incomingRequest.country,
+        latitude:incomingRequest.latitude,
+        longitude:incomingRequest.longitude
     }).then(response => {
-        console.log(response.jsonBody.businesses[0].id);
+        //console.log(response.jsonBody.businesses[0].id);
         return callback(response.jsonBody);
     }).catch(e => {
         console.log(e);
