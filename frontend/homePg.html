@@ -12,13 +12,13 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+    <script src="travel.js"></script>
 </head>
 
-<body>
+<body ng-app="loadApp" ng-controller="locController">
     <div class="container">
-
-        <form action="/action_page.php">
+        <form>
             <div class="card bg-light text-dark">
                 <div class="card-body">
                     <h4 class="card-title">Travel and Entertainment Search</h4>
@@ -112,12 +112,13 @@
                             <div class="row">
                                 <div class="col-sm-3"></div>
                                 <div class="col-sm-3">
-                                    <input type="search" class="form-control" id="locationOther" placeholder="Enter a location" name="locationOther" ><!--onfocus="geolocate()" -->
+                                    <input type="search" class="form-control" id="locationOther" placeholder="Enter a location" name="locationOther" disabled>
+                                    <!--onfocus="geolocate()" -->
                                 </div>
 
                             </div>
                             <div class="form-group"></div>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" ng-click="submitFormData()" class="btn btn-primary">
                                 <span class="fa fa-search"></span>Search
                             </button>
                             <button type="button" class="btn btn-outline-secondary">
@@ -136,50 +137,25 @@
                 <span style="color:blue;">Favorities</span>
             </button>
         </div>
+        <br>
+       
+        <br>
+        <div class="table-responsive">
+            <table class="table">
+                <tr ng-repeat="result in results">
+                    <td>
+                        <img ng-src="{{ result.icon }}" />
+                    </td>
+                    <td>{{ result.name }}</td>
+                    <td>{{ result.vicinity }}</td>
+                    <td><span class="fa fa-star-o"></span></td>
+                    <td><span class="fa fa-caret-square-o-right"></span></td>
+                </tr>
+            </table>
+        </div>
     </div>
 </body>
 
-<script>
-    // This example displays an address form, using the autocomplete feature
-    // of the Google Places API to help users fill in the information.
-
-    // This example requires the Places library. Include the libraries=places
-    // parameter when you first load the API. For example:
-    // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
-
-    var autocomplete;
-
-
-    function initAutocomplete() {
-        // Create the autocomplete object, restricting the search to geographical
-        // location types.
-        autocomplete = new google.maps.places.Autocomplete(
-              /** @type {!HTMLInputElement} */(document.getElementById('locationOther')),
-            { types: ['geocode'] });
-
-        // When the user selects an address from the dropdown, populate the address
-        // fields in the form.
-        //autocomplete.addListener('place_changed', fillInAddress);
-    }
-
-    // Bias the autocomplete object to the user's geographical location,
-    // as supplied by the browser's 'navigator.geolocation' object.
-    function geolocate() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function (position) {
-                var geolocation = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                };
-                var circle = new google.maps.Circle({
-                    center: geolocation,
-                    radius: position.coords.accuracy
-                });
-                autocomplete.setBounds(circle.getBounds());
-            });
-        }
-    }
-</script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWBtO4XwwiZCwCDr6z2aK8rXZMuO0OTNM&libraries=places&callback=initAutocomplete"
     async defer></script>
 
