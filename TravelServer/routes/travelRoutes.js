@@ -5,6 +5,8 @@ module.exports=function(app){
     //google routes
     app.route('/searchResults')
         .get(googleController.getSearchResults);
+    app.route('/nextSearchResults')
+        .get(googleController.getNextSearchResults);
     //yelp routes
     app.route('/yelpReviews')
         .get(yelpController.getYelpReviews);

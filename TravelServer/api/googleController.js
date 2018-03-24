@@ -6,7 +6,7 @@ const GOOGLE_PLACES_DETAILS_API = "https://maps.googleapis.com/maps/api/place/de
 const GOOGLE_PLACES_PHOTO_API = "https://maps.googleapis.com/maps/api/place/photo";
 
 exports.getSearchResults = function (request, response) {
-    console.log(request.query);
+    console.log("Request to the api:",request.query);
     if (request.query.location == "" || request.query.location != "here") {
         getGeoLocation(request.query, function (geoLocationJson) {
             //console.log(geoLocationJson);
@@ -14,20 +14,33 @@ exports.getSearchResults = function (request, response) {
             request.query.longitude = geoLocationJson["results"][0]["geometry"]["location"]["lng"];
         });
     }
-    callGooglePlaces(request.query, function (googlePlacesJson) {
-        console.log(googlePlacesJson);
+    var queryObj = {
+        location: request.query.latitude + "," + request.query.longitude,
+        key: GOOGLE_KEY, 
+        radius:request.query.distance * 1609.34,
+        type:request.query.category,
+        keyword:request.query.keyword
+    };
+    callGooglePlaces(queryObj, function (googlePlacesJson) {
+        console.log("Api Response:",googlePlacesJson);
         response.send(googlePlacesJson);
     });
     
 };
+//get next search api
+exports.getNextSearchResults=function(request,response){
+    var query={
+        key: GOOGLE_KEY,
+        pagetoken: request.query.nextPageToken
+    }
+    callGooglePlaces(query,function(googlePlacesJson){
+        console.log(googlePlacesJson);
+        response.send(googlePlacesJson);
+    });
+};
 
-function callGooglePlaces(query, callback) {
-    var queryObject = {
-        location: query.latitude + "," + query.longitude,
-        key: GOOGLE_KEY, radius:query.distance * 1609.34, type:query.category, keyword:query.keyword
-    };
-    console.log(queryObject);
-    httpRequest.get({ url: GOOGLE_NEARBY_SEARCH_API, qs: queryObject }, (error, response, body) => {
+function callGooglePlaces(query, callback) {        
+    httpRequest.get({ url: GOOGLE_NEARBY_SEARCH_API, qs: query }, (error, response, body) => {
         var googlePlacesJson = JSON.parse(body);
         return callback(googlePlacesJson);
     });
@@ -35,7 +48,7 @@ function callGooglePlaces(query, callback) {
 
 function getGeoLocation(query, callback) {
     var queryObject = { address: query.location, key: GOOGLE_KEY };
-    console.log(queryObject);
+    console.log("GetGeoLocationParam:",queryObject);
     httpRequest.get({ url: GOOGLE_GEOCODING_API, qs: queryObject }, (error, response, body) => {
         var geoLocationJson = JSON.parse(body);
         return callback(geoLocationJson);
