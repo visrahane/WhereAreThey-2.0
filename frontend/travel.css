@@ -4,4 +4,16 @@
 
 .text-center{
     padding-top: 20px;
+    padding-bottom: 25px;
+}
+
+.detailsBtn{
+    margin-left: 93%;
+    padding-bottom: 9px;
+}
+.equal-btn{    
+    width: 100px;
+}
+.hidden{
+    display: none;
 }

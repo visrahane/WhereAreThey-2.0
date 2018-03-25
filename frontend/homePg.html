@@ -16,7 +16,7 @@
     <script src="travel.js"></script>
 </head>
 
-<body ng-app="loadApp" ng-controller="locController">
+<body ng-app="loadApp" ng-controller="locController" ng-init="disableSearchBtn=true">
     <div class="container">
         <form>
             <div class="card bg-light text-dark">
@@ -30,7 +30,7 @@
                                 </label>
                             </div>
                             <div class="col-sm-3">
-                                <input type="text" class="form-control" id="keyword" name="keyword" required>
+                                <input type="text" ng-model="keyword" class="form-control" id="keyword" name="keyword" required>
                             </div>
                         </div>
                     </div>
@@ -40,7 +40,7 @@
                                 <label for="category">Category</label>
                             </div>
                             <div class="col-sm-3">
-                                <select class="form-control" id="category">
+                                <select class="form-control" id="category" ng-model="category" ng-init="category='default'">
                                     <option value="default">Default</option>
 
                                     <option value="airport">Airport</option>
@@ -85,7 +85,7 @@
                             <label for="distance">Distance</label>
                         </div>
                         <div class="col-sm-3">
-                            <input type="text" class="form-control" id="distance" placeholder="10" name="distance">
+                            <input type="text" class="form-control" id="distance" placeholder="10" name="distance" ng-init="10" ng-model="distance">
                         </div>
                     </div>
                     <div class="radio">
@@ -97,7 +97,7 @@
                             </div>
                             <div class="col-sm-3">
                                 <label>
-                                    <input type="radio" name="location" checked> Current location</label>
+                                    <input type="radio" name="location" ng-click="disableLocTxt=!disableLocTxt" checked> Current location</label>
                             </div>
                         </div>
                         <div class="radio">
@@ -105,20 +105,21 @@
                                 <div class="col-sm-3"></div>
                                 <div class="col-sm-3">
                                     <label>
-                                        <input type="radio" name="location"> Other, Please specify:</label>
+                                        <input type="radio" name="location" ng-click="disableLocTxt=!disableLocTxt"> Other, Please specify:</label>
                                 </div>
 
                             </div>
                             <div class="row">
                                 <div class="col-sm-3"></div>
                                 <div class="col-sm-3">
-                                    <input type="search" class="form-control" id="locationOther" placeholder="Enter a location" name="locationOther" disabled>
+                                    <input type="search" class="form-control" id="locationOther" placeholder="Enter a location" name="locationOther" ng-init="disableLocTxt=true"
+                                        ng-disabled="disableLocTxt" ng-init="location=here" ng-model="location">
                                     <!--onfocus="geolocate()" -->
                                 </div>
 
                             </div>
                             <div class="form-group"></div>
-                            <button type="submit" ng-click="submitFormData()" class="btn btn-primary">
+                            <button type="submit" ng-click="submitFormData()" class="btn btn-primary" ng-disabled="disableSearchBtn">
                                 <span class="fa fa-search"></span>Search
                             </button>
                             <button type="button" class="btn btn-outline-secondary">
@@ -129,6 +130,7 @@
                 </div>
             </div>
         </form>
+        <!--Results and Favorites buttons -->
         <div class="text-center">
             <button type="button" class="btn btn-primary">
                 Results
@@ -137,21 +139,41 @@
                 <span style="color:blue;">Favorities</span>
             </button>
         </div>
-        <br>
-       
-        <br>
+        <!--details button -->
+        <div class="detailsBtn">
+            <button type="button" id="detailsBtnId" class="btn btn-outline-dark hidden" disabled>
+                Details
+            </button>
+        </div>
+        <!--search results table -->
         <div class="table-responsive">
             <table class="table">
                 <tr ng-repeat="result in results">
                     <td>
-                        <img ng-src="{{ result.icon }}" />
+                        <img style="height: 45px; width: 45px;" ng-src="{{ result.icon }}" />
                     </td>
                     <td>{{ result.name }}</td>
                     <td>{{ result.vicinity }}</td>
-                    <td><span class="fa fa-star-o"></span></td>
-                    <td><span class="fa fa-caret-square-o-right"></span></td>
+                    <td>
+                        <button class="btn btn-outline-dark">
+                            <span class="fa fa-star-o"></span>
+
+                        </button>
+                    </td>
+                    <td>
+                        <span class="fa fa-caret-square-o-right" style="font-size: 43px;"></span>
+                    </td>
                 </tr>
             </table>
+        </div>
+        <!--Pagination buttons -->
+        <div class="text-center">
+            <button type="button" id="prevBtn" class="btn btn-outline-dark equal-btn hidden" style="margin-right:18px">
+                Previous
+            </button>
+            <button type="button" id="nextBtn" class="btn btn-outline-dark equal-btn hidden" ng-click="fetchNext()" >
+                Next
+            </button>
         </div>
     </div>
 </body>
