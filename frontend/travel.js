@@ -1,6 +1,7 @@
 var app = angular.module("loadApp", []);
 app.controller("locController", function ($scope, $http) {
     $scope.nextPageUrl = {};
+    $scope.latitude;
     $scope.pages = [];
     var currentPage = 0;
     $http({
@@ -8,7 +9,7 @@ app.controller("locController", function ($scope, $http) {
         url: "http://ip-api.com/json"
     }).then(function mySuccess(response) {
         // var locationJson=JSON.parse(response);
-        latitude = response.data.lat;
+        $scope.latitude = response.data.lat;
         longitude = response.data.lon;
 
         console.log(response.data.lon);
@@ -22,15 +23,16 @@ app.controller("locController", function ($scope, $http) {
             $scope.distance = 10;
         }
         var location;
+
+        if (autocomplete.getPlace()) {
+            $scope.location = autocomplete.getPlace().formatted_address;
+        }
         if (!$scope.location) {
             location = "here";
         } else {
             location = $scope.location;
         }
         console.log("location", location);
-        if (autocomplete.getPlace()) {
-            $scope.location = autocomplete.getPlace().formatted_address;
-        }
         $http({
             method: "GET",
             url: "http://webtechtravel-env.us-east-2.elasticbeanstalk.com/searchResults",
@@ -38,7 +40,7 @@ app.controller("locController", function ($scope, $http) {
                 category: $scope.category,
                 distance: $scope.distance,
                 keyword: $scope.keyword,
-                latitude: latitude,
+                latitude: $scope.latitude,
                 longitude: longitude,
                 location: location
             }
@@ -101,6 +103,27 @@ app.controller("locController", function ($scope, $http) {
         }, function myError(response) {
             console.log("Error:", response);
         });
+    }
+    $scope.getDetails = function (index) {
+        console.log("getDetails-", $scope.results[index].place_id);
+        var request = {
+            placeId: $scope.results[index].place_id
+        };
+        var map = new google.maps.Map(document.createElement('div'), {
+            center: {
+                lat: $scope.results[index].geometry.location.lat,
+                lng: $scope.results[index].geometry.location.lng
+            },
+            zoom: 15
+        });
+        service = new google.maps.places.PlacesService(map);
+        service.getDetails(request, callback);
+
+        function callback(place, status) {
+            if (status == google.maps.places.PlacesServiceStatus.OK) {
+                console.log(place)
+            }
+        }
     }
     function toggleVisibility(divId) {
         $("#" + divId).toggle();
