@@ -48,17 +48,21 @@ app.controller("locController", function ($scope, $http) {
             // var locationJson=JSON.parse(response);
             console.log(response.data);
             $scope.pages[currentPage++] = $scope.results = response.data.results;
-            toggleVisibility("detailsBtnId");
+            if ($scope.results.length == 0) {
+                $scope.showNoRecordsBox = true;
+            }
             if (response.data.next_page_token != null && response.data.next_page_token != "") {
                 //set nextPageToken in nextBtn 
                 toggleVisibility("nextBtn");
                 $scope.nextPageUrl = response.data.next_page_token;
                 //and button should call api when clicked with param nextPageToken
-
             }
+            $scope.showProgressBar = false;
         }, function myError(response) {
             console.log("Error:", response);
+            $scope.showErrorBox = true;
         });
+
     };
     $scope.fetchPrev = function () {
         $scope.results = $scope.pages[--currentPage];
@@ -66,8 +70,7 @@ app.controller("locController", function ($scope, $http) {
             toggleVisibility("prevBtn");
             toggleVisibility("nextBtn");
         }
-
-
+        $scope.showProgressBar = false;
     }
     $scope.fetchNext = function () {
         toggleVisibility("nextBtn");
@@ -80,8 +83,6 @@ app.controller("locController", function ($scope, $http) {
                 currentPage--;
             }
         }
-
-
     }
     function getNextPageFromServer() {
         $http({
@@ -100,8 +101,10 @@ app.controller("locController", function ($scope, $http) {
                 currentPage++;
 
             }
+            $scope.showProgressBar = false;
         }, function myError(response) {
             console.log("Error:", response);
+            $scope.showErrorBox = true;
         });
     }
     $scope.getDetails = function (index) {

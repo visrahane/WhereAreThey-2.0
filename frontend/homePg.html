@@ -124,7 +124,7 @@
 
                             </div>
                             <div class="form-group"></div>
-                            <button type="submit" ng-click="submitFormData()" class="btn btn-primary" ng-disabled="searchForm.$invalid || latitude==null">
+                            <button type="submit" ng-click="showProgressBar=true;submitFormData()" class="btn btn-primary" ng-disabled="searchForm.$invalid || latitude==null">
 
                                 <span class="fa fa-search"></span>Search
                             </button>
@@ -147,12 +147,28 @@
         </div>
         <!--details button -->
         <div class="detailsBtn">
-            <button type="button" id="detailsBtnId" class="btn btn-outline-dark hidden" disabled>
+            <button type="button" id="detailsBtnId" class="btn btn-outline-dark" disabled ng-hide="results==null || results.length==0">
                 Details
             </button>
         </div>
+
+        <!--Progress Bar -->
+        <div class="progress" id="progressBar" ng-init="showProgressBar=false" ng-show="showProgressBar">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="50" aria-valuemin="0"
+                aria-valuemax="100" style="width: 50%"></div>
+        </div>
+
+        <!--Error Tab -->
+        <div class="alert alert-danger" ng-init="showErrorBox=false" ng-show="showErrorBox">
+            Failed To get search results.
+        </div>
+
+        <!--No records box -->
+        <div class="alert alert-warning" ng-init="showNoRecordsBox=false" ng-show="showNoRecordsBox">
+            No records.
+        </div>
         <!--search results table -->
-        <div class="table-responsive" ng-hide="results==null">
+        <div class="table-responsive" ng-hide="results==null || results.length==0">
             <table class="table">
                 <tr>
                     <th>#</th>
@@ -184,10 +200,11 @@
         </div>
         <!--Pagination buttons -->
         <div class="text-center">
-            <button type="button" id="prevBtn" class="btn btn-outline-dark equal-btn hidden" ng-click="fetchPrev()" style="margin-right:18px">
+            <button type="button" id="prevBtn" class="btn btn-outline-dark equal-btn hidden" ng-click="showProgressBar=true;fetchPrev()"
+                style="margin-right:18px">
                 Previous
             </button>
-            <button type="button" id="nextBtn" class="btn btn-outline-dark equal-btn hidden" ng-click="fetchNext()">
+            <button type="button" id="nextBtn" class="btn btn-outline-dark equal-btn hidden" ng-click="showProgressBar=true;fetchNext()">
                 Next
             </button>
         </div>
