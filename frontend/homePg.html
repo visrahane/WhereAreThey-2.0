@@ -9,14 +9,6 @@
     <link rel="stylesheet" href="travel.css">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-
-
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-    <script src="travel.js"></script>
 </head>
 
 <body ng-app="loadApp" ng-controller="locController" ng-init="disableSearchBtn=true">
@@ -136,6 +128,7 @@
                 </div>
             </div>
         </form>
+
         <!--Results and Favorites buttons -->
         <div class="text-center">
             <button type="button" class="btn btn-primary">
@@ -145,17 +138,63 @@
                 <span style="color:blue;">Favorities</span>
             </button>
         </div>
-        <!--details button -->
-        <div class="detailsBtn">
-            <button type="button" id="detailsBtnId" class="btn btn-outline-dark" disabled ng-hide="results==null || results.length==0">
-                Details
-            </button>
+        <div class="animate-hide-r-l" ng-init="showFirstPg=true" ng-show="showFirstPg">
+            <!--details button -->
+            <div class="detailsBtn">
+                <button type="button" id="detailsBtnId" class="btn btn-outline-dark" disabled ng-hide="results==null || results.length==0">
+                    Details
+                </button>
+            </div>
+
+            <!--search results table -->
+            <div class="table-responsive" ng-hide="results==null || results.length==0">
+                <table class="table">
+                    <tr>
+                        <th>#</th>
+                        <th>Category</th>
+                        <th>Name</th>
+                        <th>Address</th>
+                        <th>Favorite</th>
+                        <th>Details</th>
+                    </tr>
+                    <tr ng-repeat="result in results track by $index">
+                        <td>{{$index+1}}</td>
+                        <td>
+                            <img style="height: 45px; width: 45px;" ng-src="{{ result.icon }}" />
+                        </td>
+                        <td>{{ result.name }}</td>
+                        <td>{{ result.vicinity }}</td>
+                        <td>
+                            <button class="btn btn-outline-dark">
+                                <span class="fa fa-star-o"></span>
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn btn-outline-dark" ng-click="getDetails($index)">
+                                <span class="fa fa-angle-right" style="font-size: 19px;"></span>
+                            </button>
+
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!--Pagination buttons -->
+            <div class="text-center">
+                <button type="button" id="prevBtn" class="btn btn-outline-dark equal-btn hidden" ng-click="showProgressBar=true;fetchPrev()"
+                    style="margin-right:18px">
+                    Previous
+                </button>
+                <button type="button" id="nextBtn" class="btn btn-outline-dark equal-btn hidden" ng-click="showProgressBar=true;fetchNext()">
+                    Next
+                </button>
+            </div>
         </div>
 
         <!--Progress Bar -->
         <div class="progress" id="progressBar" ng-init="showProgressBar=false" ng-show="showProgressBar">
             <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="50" aria-valuemin="0"
-                aria-valuemax="100" style="width: 50%"></div>
+                aria-valuemax="100" style="width: 50%">
+            </div>
         </div>
 
         <!--Error Tab -->
@@ -167,51 +206,129 @@
         <div class="alert alert-warning" ng-init="showNoRecordsBox=false" ng-show="showNoRecordsBox">
             No records.
         </div>
-        <!--search results table -->
-        <div class="table-responsive" ng-hide="results==null || results.length==0">
-            <table class="table">
-                <tr>
-                    <th>#</th>
-                    <th>Category</th>
-                    <th>Name</th>
-                    <th>Address</th>
-                    <th>Favorite</th>
-                    <th>Details</th>
-                </tr>
-                <tr ng-repeat="result in results track by $index">
-                    <td>{{$index+1}}</td>
-                    <td>
-                        <img style="height: 45px; width: 45px;" ng-src="{{ result.icon }}" />
-                    </td>
-                    <td>{{ result.name }}</td>
-                    <td>{{ result.vicinity }}</td>
-                    <td>
-                        <button class="btn btn-outline-dark">
-                            <span class="fa fa-star-o"></span>
-                        </button>
-                    </td>
-                    <td>
-                        <button class="btn btn-outline-dark" ng-click="getDetails($index)">
-                            <span class="fa fa-angle-right" style="font-size: 19px;"></span>
-                        </button>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <!--Pagination buttons -->
-        <div class="text-center">
-            <button type="button" id="prevBtn" class="btn btn-outline-dark equal-btn hidden" ng-click="showProgressBar=true;fetchPrev()"
-                style="margin-right:18px">
-                Previous
-            </button>
-            <button type="button" id="nextBtn" class="btn btn-outline-dark equal-btn hidden" ng-click="showProgressBar=true;fetchNext()">
-                Next
-            </button>
+        <!--DetailsPg -->
+        <div class="card animate-hide-l-r" style="border:0;" ng-init="showDetailsPg=false" ng-show="showDetailsPg">
+            <div class="card-body">
+                <h4 class="card-title">{{title}}</h4>
+                <!--<List -->
+                <div class="listBtn">
+                    <button type="button" id="listBtnId" class="btn btn-outline-dark" ng-click="showFirstPg=true;
+                    showDetailsPg=false;">
+                        <span class="fa fa-angle-left" style="font-weight: bold;"></span> List
+                    </button>
+                </div>
+                <ul class="nav nav-tabs justify-content-end" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#info">Info</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#photos">Photos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#map">Map</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#reviews">Reviews</a>
+                    </li>
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <div id="info" class="container tab-pane active">
+                        <br/>
+                        <table class="table table-striped">
+                            <tr>
+                                <th>Address</th>
+                                <td>{{details.formatted_address}}</td>
+                            </tr>
+                            <tr>
+                                <th>Phone Number</th>
+                                <td>{{details.international_phone_number}}</td>
+                            </tr>
+                            <tr>
+                                <th>Price Level</th>
+                                <td>{{details.price_level}}</td>
+                            </tr>
+                            <tr>
+                                <th>Rating</th>
+                                <td>{{details.rating}}</td>
+                            </tr>
+                            <tr>
+                                <th>Google Page</th>
+                                <td>
+                                    <a href={{details.url}}>{{details.url}}</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Website</th>
+                                <td>
+                                    <a href={{details.website}}>{{details.website}}</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Hours</th>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="photos" class="container tab-pane fade">
+
+                        <h3>Menu 1</h3>
+                    </div>
+                    <div id="map" class="container tab-pane fade">
+
+                        <h3>Menu 2</h3>
+                    </div>
+                    <div id="reviews" class="container tab-pane fade">
+                        <form class="form-inline">
+                            <!--reviews dropdown -->
+                            <div class="dropdown">
+                                <button type="button" ng-init="selectedReview='Google Reviews'" ng-bind="selectedReview" class="btn btn-secondary dropdown-toggle"
+                                    data-toggle="dropdown">
+                                    {{selectedReview}}
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" ng-click="selectedReview='Google Reviews'">Google Reviews</a>
+                                    <a class="dropdown-item" ng-click="selectedReview='Yelp Reviews'">Yelp Reviews</a>
+
+                                </div>
+                            </div>
+
+                            <div class="dropdown" style="margin-left: 2%;">
+                                <button type="button" ng-init="selectedOrder='Default Order'" ng-bind="selectedOrder" class="btn btn-secondary dropdown-toggle"
+                                    data-toggle="dropdown">
+                                    {{selectedOrder}}
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" ng-click="selectedOrder='Default Order'">Default Order</a>
+                                    <a class="dropdown-item" ng-click="selectedOrder='Highest Rating'">Highest Rating</a>
+                                    <a class="dropdown-item" ng-click="selectedOrder='Lowest Rating'">Lowest Rating</a>
+                                    <a class="dropdown-item" ng-click="selectedOrder='Most Recent'">Most Recent</a>
+                                    <a class="dropdown-item" ng-click="selectedOrder='Least Recent'">Least Recent</a>
+                                </div>
+                            </div>
+
+
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-touch.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-animate.min.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWBtO4XwwiZCwCDr6z2aK8rXZMuO0OTNM&libraries=places&callback=initAutocomplete"
     async defer></script>
+<script src="travel.js"></script>
 
 </html>

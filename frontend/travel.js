@@ -1,9 +1,11 @@
-var app = angular.module("loadApp", []);
+var app = angular.module("loadApp", ["ngAnimate"]);
 app.controller("locController", function ($scope, $http) {
     $scope.nextPageUrl = {};
     $scope.latitude;
     $scope.pages = [];
+    $scope.details = {};
     var currentPage = 0;
+
     $http({
         method: "GET",
         url: "http://ip-api.com/json"
@@ -32,7 +34,7 @@ app.controller("locController", function ($scope, $http) {
         } else {
             location = $scope.location;
         }
-        console.log("location", location);
+        //console.log("location", location);
         $http({
             method: "GET",
             url: "http://webtechtravel-env.us-east-2.elasticbeanstalk.com/searchResults",
@@ -46,7 +48,7 @@ app.controller("locController", function ($scope, $http) {
             }
         }).then(function mySuccess(response) {
             // var locationJson=JSON.parse(response);
-            console.log(response.data);
+            //console.log(response.data);
             $scope.pages[currentPage++] = $scope.results = response.data.results;
             if ($scope.results.length == 0) {
                 $scope.showNoRecordsBox = true;
@@ -107,8 +109,10 @@ app.controller("locController", function ($scope, $http) {
             $scope.showErrorBox = true;
         });
     }
+
     $scope.getDetails = function (index) {
         console.log("getDetails-", $scope.results[index].place_id);
+        $scope.title = $scope.results[index].name;
         var request = {
             placeId: $scope.results[index].place_id
         };
@@ -123,10 +127,19 @@ app.controller("locController", function ($scope, $http) {
         service.getDetails(request, callback);
 
         function callback(place, status) {
+
             if (status == google.maps.places.PlacesServiceStatus.OK) {
-                console.log(place)
+                //console.log(place);
+                $scope.details = place;
+                console.log($scope.details);
             }
         }
+        adjustViews();
+    }
+    function adjustViews() {
+        $scope.showFirstPg = false;
+        $scope.showDetailsPg = true;
+        console.log($scope.details);
     }
     function toggleVisibility(divId) {
         $("#" + divId).toggle();

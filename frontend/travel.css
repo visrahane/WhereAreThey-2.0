@@ -17,3 +17,29 @@
 .hidden{
     display: none;
 }
+#displayOrder{
+    margin-left: 3%;
+}
+.form-inline{
+    margin-top:1%;
+}
+
+.animate-hide-l-r.ng-hide-remove {
+    transform: translateX(-100%);
+    transition: all linear 0.5s;
+}
+
+.animate-hide-l-r.ng-hide-remove.ng-hide-remove-active {
+    transform: translateX(0%);
+}
+
+.animate-hide-r-l.ng-hide-remove {
+    transform: translateX(100%);
+    transition: all linear 0.5s;
+}
+
+.animate-hide-r-l.ng-hide-remove.ng-hide-remove-active {
+    transform: translateX(0%);
+}
+
+  
