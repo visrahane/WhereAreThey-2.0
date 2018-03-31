@@ -24,6 +24,16 @@
     margin-top:1%;
 }
 
+#map {
+    height: 320px;
+    width: 100%;
+    margin-top: 1%;
+}
+#streetView {
+    height: 320px;
+    width: 100%;
+    margin-top: 1%;
+}
 .animate-hide-l-r.ng-hide-remove {
     transform: translateX(-100%);
     transition: all linear 0.5s;
@@ -41,5 +51,3 @@
 .animate-hide-r-l.ng-hide-remove.ng-hide-remove-active {
     transform: translateX(0%);
 }
-
-  

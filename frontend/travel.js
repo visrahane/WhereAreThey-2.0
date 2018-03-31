@@ -1,18 +1,24 @@
+/*
+http://csserver.usc.edu:45678/hw/hw8/images/Map.png
+http://csserver.usc.edu:45678/hw/hw8/images/Pegman.png
+http://csserver.usc.edu:45678/hw/hw8/images/Twitter.png
+*/
 var app = angular.module("loadApp", ["ngAnimate"]);
 app.controller("locController", function ($scope, $http) {
     $scope.nextPageUrl = {};
     $scope.latitude;
+    $scope.longitude;
     $scope.pages = [];
     $scope.details = {};
     var currentPage = 0;
-
+    $scope.map;
     $http({
         method: "GET",
         url: "http://ip-api.com/json"
     }).then(function mySuccess(response) {
         // var locationJson=JSON.parse(response);
         $scope.latitude = response.data.lat;
-        longitude = response.data.lon;
+        $scope.longitude = response.data.lon;
 
         console.log(response.data.lon);
         console.log(response.data.lat);
@@ -43,7 +49,7 @@ app.controller("locController", function ($scope, $http) {
                 distance: $scope.distance,
                 keyword: $scope.keyword,
                 latitude: $scope.latitude,
-                longitude: longitude,
+                longitude: $scope.longitude,
                 location: location
             }
         }).then(function mySuccess(response) {
@@ -110,20 +116,70 @@ app.controller("locController", function ($scope, $http) {
         });
     }
 
+    $scope.initMap = function () {
+
+        $scope.map = new google.maps.Map(document.getElementById('map'), {
+            center: destLoc,
+            zoom: 15
+        });
+        marker = new google.maps.Marker({
+            position: destLoc,
+            map: $scope.map
+        });
+
+        directionsService = new google.maps.DirectionsService;
+        directionsDisplay = new google.maps.DirectionsRenderer;
+        directionsDisplay.setMap($scope.map);
+
+        //remove this
+        //initStreetView();
+
+    }
+    var panorama;
+    $scope.initStreetView = function () {
+        panorama = new google.maps.StreetViewPanorama(
+            document.getElementById('streetView'),
+            {
+                position: destLoc,
+                pov: { heading: 165, pitch: 0 },
+                zoom: 1
+            });
+    }
+
+    $scope.setImage = function () {
+        //console.log(panorama);
+
+        if ($scope.showStreetView) {
+            $scope.mapBtnSrc = 'http://cs-server.usc.edu:45678/hw/hw8/images/Pegman.png';
+        } else {
+            $scope.mapBtnSrc = "http://cs-server.usc.edu:45678/hw/hw8/images/Map.png";
+        }
+    }
+
+    $scope.setDest = function () {
+        $scope.destinationLoc = $scope.details.formatted_address;
+    }
+    $scope.getDirections = function () {
+        calculateAndDisplayRoute(directionsService, directionsDisplay);
+    }
+
     $scope.getDetails = function (index) {
         console.log("getDetails-", $scope.results[index].place_id);
         $scope.title = $scope.results[index].name;
         var request = {
             placeId: $scope.results[index].place_id
         };
-        var map = new google.maps.Map(document.createElement('div'), {
-            center: {
-                lat: $scope.results[index].geometry.location.lat,
-                lng: $scope.results[index].geometry.location.lng
-            },
-            zoom: 15
+        destLoc = {
+            lat: $scope.results[index].geometry.location.lat,
+            lng: $scope.results[index].geometry.location.lng
+        };
+
+        $scope.map = new google.maps.Map(document.getElementById('map'), {
+            center: destLoc,
+            zoom: 7
         });
-        service = new google.maps.places.PlacesService(map);
+
+        var service = new google.maps.places.PlacesService(map);
         service.getDetails(request, callback);
 
         function callback(place, status) {
@@ -135,7 +191,9 @@ app.controller("locController", function ($scope, $http) {
             }
         }
         adjustViews();
+
     }
+
     function adjustViews() {
         $scope.showFirstPg = false;
         $scope.showDetailsPg = true;
@@ -144,7 +202,35 @@ app.controller("locController", function ($scope, $http) {
     function toggleVisibility(divId) {
         $("#" + divId).toggle();
     }
+    function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+        marker.setMap(null);
+        directionsDisplay.setPanel(document.getElementById('directionInfo'));
 
+        var selectedMode = document.getElementById('modeOfTransport').value;
+
+        var location;
+        if(document.getElementById('start').value==""){
+            location={lat:$scope.latitude,lng:$scope.longitude};
+        }else{
+            location=document.getElementById('start').value;
+        }
+        //console.log(location);
+        directionsService.route({
+            //current loc, can be latlan obj - new google.maps.LatLng(41.850033, -87.6500523);
+            origin: location ,
+            //get it from row, use placeId for eg
+            destination: document.getElementById('dest').value,
+            //get travel mode from btn click
+            travelMode: google.maps.TravelMode[selectedMode]
+
+        }, function (response, status) {
+            if (status === 'OK') {
+                directionsDisplay.setDirections(response);
+            } else {
+                window.alert('Directions request failed due to ' + status);
+            }
+        });
+    }
     //form valid
     /*if($scope.searchForm.$valid) {
         console.log("valid enable");
@@ -159,6 +245,9 @@ function initAutocomplete() {
     // location types.
     autocomplete = new google.maps.places.Autocomplete(
               /** @type {!HTMLInputElement} */(document.getElementById('locationOther')),
+        { types: ['geocode'] });
+    new google.maps.places.Autocomplete(
+            /** @type {!HTMLInputElement} */(document.getElementById('start')),
         { types: ['geocode'] });
 
 }
