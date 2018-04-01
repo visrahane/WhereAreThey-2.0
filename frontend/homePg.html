@@ -19,23 +19,26 @@
                     <h4 class="card-title">Travel and Entertainment Search</h4>
                     <div class="form-group">
                         <div class="row">
-                            <div class="col-sm-3">
+                            <div class="col-sm-2"></div>
+                            <div class="col-sm-2">
                                 <label>Keyword
                                     <span style="color:red">*</span>
                                 </label>
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-sm-6">
                                 <input type="text" pattern="^\S+$" ng-model="keyword" class="form-control" id="keyword" name="keyword" required>
                                 <span style="color:red" ng-show="searchForm.keyword.$touched && searchForm.keyword.$invalid">Please enter a keyword.</span>
                             </div>
+
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="row">
-                            <div class="col-sm-3">
+                            <div class="col-sm-2"></div>
+                            <div class="col-sm-2">
                                 <label for="category">Category</label>
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-sm-4">
                                 <select class="form-control" id="category" ng-model="category" ng-init="category='default'">
                                     <option value="default">Default</option>
 
@@ -77,37 +80,41 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-3">
+                        <div class="col-sm-2"></div>
+                        <div class="col-sm-2">
                             <label for="distance">Distance</label>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <input type="text" class="form-control" id="distance" placeholder="10" name="distance" ng-init="10" ng-model="distance">
                         </div>
                     </div>
                     <div class="radio">
                         <div class="row">
-                            <div class="col-sm-3">
+                            <div class="col-sm-2"></div>
+                            <div class="col-sm-2">
                                 <label>From
                                     <span style="color:red">*</span>
                                 </label>
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-sm-5">
                                 <label>
                                     <input type="radio" name="location" ng-click="disableLocTxt=!disableLocTxt" checked> Current location</label>
                             </div>
                         </div>
                         <div class="radio">
                             <div class="row">
-                                <div class="col-sm-3"></div>
-                                <div class="col-sm-3">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-5">
                                     <label>
                                         <input type="radio" name="location" ng-click="disableLocTxt=!disableLocTxt"> Other, Please specify:</label>
                                 </div>
 
                             </div>
                             <div class="row">
-                                <div class="col-sm-3"></div>
-                                <div class="col-sm-3">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-6">
                                     <input type="search" class="form-control" id="locationOther" placeholder="Enter a location" name="locationOther" ng-init="disableLocTxt=true"
                                         ng-disabled="disableLocTxt" ng-init="location=here" ng-model="location" ng-required="!disableLocTxt">
                                     <span style="color:red" ng-show="searchForm.locationOther.$touched && searchForm.locationOther.$invalid">Please enter a location.</span>
@@ -115,14 +122,20 @@
                                 </div>
 
                             </div>
-                            <div class="form-group"></div>
-                            <button type="submit" ng-click="showProgressBar=true;submitFormData()" class="btn btn-primary" ng-disabled="searchForm.$invalid || latitude==null">
+                            <div class="row">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-3">
+                                    <button type="submit" ng-click="showProgressBar=true;submitFormData()" class="btn btn-primary" ng-disabled="searchForm.$invalid || latitude==null">
 
-                                <span class="fa fa-search"></span>Search
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary">
-                                Clear
-                            </button>
+                                        <span class="fa fa-search"></span>Search
+                                    </button>
+
+                                    <button type="button" class="btn btn-outline-secondary">
+                                        Clear
+                                    </button>
+
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -131,23 +144,24 @@
 
         <!--Results and Favorites buttons -->
         <div class="text-center">
-            <button type="button" class="btn btn-primary">
-                Results
+            <button type="button" ng-init="resultBlue=true" ng-click="resultBlue=true" ng-class="resultBlue?'btn btn-primary':'btn btn-outline-light text-dark'">
+                <span ng-class="{'blue-text':!resultBlue}">Results</span>
             </button>
-            <button type="button" class="btn btn-outline-light text-dark">
-                <span style="color:blue;">Favorities</span>
+            <button type="button" ng-click="resultBlue=false" ng-class="!resultBlue?'btn btn-primary':'btn btn-outline-light text-dark'">
+                <span ng-class="{'blue-text':resultBlue}">Favorities</span>
             </button>
         </div>
         <div class="animate-hide-r-l" ng-init="showFirstPg=true" ng-show="showFirstPg">
             <!--details button -->
             <div class="detailsBtn">
-                <button type="button" id="detailsBtnId" class="btn btn-outline-dark" disabled ng-hide="results==null || results.length==0">
+                <button type="button" id="detailsBtnId" ng-click="getDetails(fav[idSelectedResult],idSelectedResult)" class="btn btn-outline-dark" ng-init="disableDetailsBtn=true"
+                    ng-disabled="disableDetailsBtn" ng-hide="!resultBlue||results==null || results.length==0">
                     Details
                 </button>
             </div>
 
             <!--search results table -->
-            <div class="table-responsive" ng-hide="results==null || results.length==0">
+            <div class="table-responsive" ng-hide="!resultBlue || results==null || results.length==0">
                 <table class="table">
                     <tr>
                         <th>#</th>
@@ -157,7 +171,7 @@
                         <th>Favorite</th>
                         <th>Details</th>
                     </tr>
-                    <tr ng-repeat="result in results track by $index">
+                    <tr ng-repeat="result in results track by $index" ng-class="{selected: $index === idSelectedResult}">
                         <td>{{$index+1}}</td>
                         <td>
                             <img style="height: 45px; width: 45px;" ng-src="{{ result.icon }}" />
@@ -165,12 +179,51 @@
                         <td>{{ result.name }}</td>
                         <td>{{ result.vicinity }}</td>
                         <td>
-                            <button class="btn btn-outline-dark">
-                                <span class="fa fa-star-o"></span>
+                            <button class="btn btn-outline-dark" ng-click="saveToFav($index)">
+                                <span ng-class="isFav(result)?'fa fa-star':'fa fa-star-o'" ></span>
                             </button>
                         </td>
                         <td>
-                            <button class="btn btn-outline-dark" ng-click="getDetails($index)">
+                            <button class="btn btn-outline-dark" ng-click="getDetails(result,$index);">
+                                <span class="fa fa-angle-right" style="font-size: 19px;"></span>
+                            </button>
+
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!--fav table -->
+            <div class="detailsBtn">
+                    <button type="button" id="detailsBtnId" ng-click="getDetails(fav[idSelectedResult],idSelectedResult)" class="btn btn-outline-dark" ng-init="disableDetailsBtn=true"
+                        ng-disabled="disableDetailsBtn" ng-hide="resultBlue|| fav==null || fav.length==0">
+                        Details
+                    </button>
+            </div>
+            <div class="table-responsive" ng-hide="resultBlue || fav==null || fav.length==0">
+                <table class="table">
+                    <tr>
+                        <th>#</th>
+                        <th>Category</th>
+                        <th>Name</th>
+                        <th>Address</th>
+                        <th>Favorite</th>
+                        <th>Details</th>
+                    </tr>
+                    <tr ng-repeat="result in fav track by $index" ng-class="{selected: $index === idSelectedResult}">
+                        <td>{{$index+1}}</td>
+                        <td>
+                            <img style="height: 45px; width: 45px;" ng-src="{{ result.icon }}" />
+                        </td>
+                        <td>{{ result.name }}</td>
+                        <td>{{ result.vicinity }}</td>
+                        <td>
+                            <button class="btn btn-outline-dark" ng-click="deleteFav($index)">
+                                <span class="fa fa-trash"></span>
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn btn-outline-dark" ng-click="getDetails(result,$index);">
                                 <span class="fa fa-angle-right" style="font-size: 19px;"></span>
                             </button>
 
@@ -203,7 +256,7 @@
         </div>
 
         <!--No records box -->
-        <div class="alert alert-warning" ng-init="showNoRecordsBox=false" ng-show="showNoRecordsBox">
+        <div class="alert alert-warning" ng-init="showNoRecordsBox=false" ng-show="results.length == 0">
             No records.
         </div>
         <!--DetailsPg -->
@@ -282,7 +335,7 @@
                     <div id="mapTab" class="container tab-pane fade">
                         <!--Start loc, from -->
                         <div class="form-group container" style="padding-left: 0;">
-                            <div class="row" >
+                            <div class="row">
                                 <div class="col-sm-4">
                                     <label for="from">From</label>
                                 </div>
@@ -292,10 +345,10 @@
                                 <div class="col-sm-2">
                                     <label for="from">Travel Mode</label>
                                 </div>
-                                <div class="col-sm-2">                                 
+                                <div class="col-sm-2">
                                 </div>
                             </div>
-                            <div class="row" >
+                            <div class="row">
                                 <div class="col-sm-4">
                                     <input type="text" class="form-control" id="start" placeholder="Your Location">
                                 </div>
@@ -317,7 +370,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!--PegMan -->
                         <button type="button" class="btn btn-outline-secondary" ng-init="showStreetView=false" ; ng-click="setImage();showStreetView=!showStreetView">
                             <img ng-src={{mapBtnSrc}} ng-init="mapBtnSrc='http://cs-server.usc.edu:45678/hw/hw8/images/Pegman.png'" style="height: 32px;width: 32px;">

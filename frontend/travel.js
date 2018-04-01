@@ -10,6 +10,7 @@ app.controller("locController", function ($scope, $http) {
     $scope.longitude;
     $scope.pages = [];
     $scope.details = {};
+    $scope.fav=JSON.parse(localStorage.getItem("favList"));
     var currentPage = 0;
     $scope.map;
     $http({
@@ -25,7 +26,31 @@ app.controller("locController", function ($scope, $http) {
     }, function myError(response) {
         console.log("Error:", response);
     });
+    $scope.deleteFav=function(index){
+        $scope.fav.pop($scope.fav[index]);
+        localStorage.setItem("favList", JSON.stringify($scope.fav));
+    }
 
+    $scope.isFav=function(result){
+        var favorite=false;
+        angular.forEach($scope.fav,function(fav,index){
+            if(result.place_id==fav.place_id){
+                favorite=true;                
+            }
+        })
+        return favorite;
+    }
+    $scope.saveToFav=function(index){
+        //console.log("isFav-",$scope.fav.indexOf($scope.results[index]));
+        if(!$scope.fav){
+            $scope.fav=[];
+        }          
+        
+        $scope.fav.push($scope.results[index]);
+        localStorage.setItem("favList", JSON.stringify($scope.fav));
+        //
+        
+    }
     $scope.submitFormData = function () {
         if (!$scope.distance) {
             $scope.distance = 10;
@@ -56,9 +81,9 @@ app.controller("locController", function ($scope, $http) {
             // var locationJson=JSON.parse(response);
             //console.log(response.data);
             $scope.pages[currentPage++] = $scope.results = response.data.results;
-            if ($scope.results.length == 0) {
+            /*if ($scope.results.length == 0) {
                 $scope.showNoRecordsBox = true;
-            }
+            }*/
             if (response.data.next_page_token != null && response.data.next_page_token != "") {
                 //set nextPageToken in nextBtn 
                 toggleVisibility("nextBtn");
@@ -144,6 +169,8 @@ app.controller("locController", function ($scope, $http) {
                 pov: { heading: 165, pitch: 0 },
                 zoom: 1
             });
+        panorama.setVisible(true);
+
     }
 
     $scope.setImage = function () {
@@ -163,15 +190,19 @@ app.controller("locController", function ($scope, $http) {
         calculateAndDisplayRoute(directionsService, directionsDisplay);
     }
 
-    $scope.getDetails = function (index) {
-        console.log("getDetails-", $scope.results[index].place_id);
-        $scope.title = $scope.results[index].name;
+    $scope.getDetails = function (result,index) {
+        //init config
+        console.log("resultObj",result);
+        $scope.idSelectedResult=index;
+        $scope.disableDetailsBtn=false;
+        
+        $scope.title = result.name;
         var request = {
-            placeId: $scope.results[index].place_id
+            placeId: result.place_id
         };
         destLoc = {
-            lat: $scope.results[index].geometry.location.lat,
-            lng: $scope.results[index].geometry.location.lng
+            lat: result.geometry.location.lat,
+            lng: result.geometry.location.lng
         };
 
         $scope.map = new google.maps.Map(document.getElementById('map'), {

@@ -23,7 +23,15 @@
 .form-inline{
     margin-top:1%;
 }
-
+.selected{
+    background-color:#ffc107;
+}
+.blue-text{
+    color:blue;
+}
+.fa.fa-star{
+    color:yellow;
+}
 #map {
     height: 320px;
     width: 100%;
