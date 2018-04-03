@@ -243,7 +243,7 @@ app.controller("locController", function ($scope, $http) {
                 $scope.details = place;
                 //console.log("photos-", place.photos[0].getUrl({ 'maxWidth': 35, 'maxHeight': 35 }));
                 //handle Photos
-                //handlePhotos(place);
+                preparePhotoGallery(place);
                 //setRating 
                 $("#rateYo").rateYo({ rating: $scope.details.rating ,readOnly: true,starWidth: "10px"});
                 //$("#rateYo").rateYo("option", "starWidth", "10px");
@@ -256,11 +256,40 @@ app.controller("locController", function ($scope, $http) {
         adjustViews();
 
     }
+function createColumn(){
+    var col=document.createElement("div");
+        col.setAttribute("class","column");
+        return col;
+}
+    function preparePhotoGallery(place){
+        var photoRow=document.getElementById("photoRow");
+        //clear previous data
+        photoRow.innerHTML="";
+       
+        var col1=createColumn();
+        var col2=createColumn();
+        var col3=createColumn();
+        var col4=createColumn();
 
-    function handlePhotos(place){
-
+        for(var i=0;place.photos!=null && i<Math.ceil(place.photos.length/4);i++){
+            appendImgToCol(col1,place.photos[i*4]);
+            appendImgToCol(col2,place.photos[i*4+1]);
+            appendImgToCol(col3,place.photos[i*4+2]);
+            appendImgToCol(col4,place.photos[i*4+3]);
+        }
+        photoRow.appendChild(col1);
+        photoRow.appendChild(col2);
+        photoRow.appendChild(col3);
+        photoRow.appendChild(col4);
     }
-
+    function appendImgToCol(col,photo){
+        var imgTag=document.createElement("img");
+        if(photo!=null){
+        imgTag.setAttribute("src",photo.getUrl({ 'maxWidth': 2000, 'maxHeight': 2000 }));
+        }
+        imgTag.setAttribute("width","100%");
+        col.appendChild(imgTag);
+    }
     function adjustViews() {
 
         $scope.showFirstPg = false;
