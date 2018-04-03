@@ -10,9 +10,10 @@ app.controller("locController", function ($scope, $http) {
     $scope.longitude;
     $scope.pages = [];
     $scope.details = {};
-    $scope.fav=JSON.parse(localStorage.getItem("favList"));
+    $scope.fav = JSON.parse(localStorage.getItem("favList"));
     var currentPage = 0;
     $scope.map;
+
     $http({
         method: "GET",
         url: "http://ip-api.com/json"
@@ -26,30 +27,30 @@ app.controller("locController", function ($scope, $http) {
     }, function myError(response) {
         console.log("Error:", response);
     });
-    $scope.deleteFav=function(index){
+    $scope.deleteFav = function (index) {
         $scope.fav.pop($scope.fav[index]);
         localStorage.setItem("favList", JSON.stringify($scope.fav));
     }
 
-    $scope.isFav=function(result){
-        var favorite=false;
-        angular.forEach($scope.fav,function(fav,index){
-            if(result.place_id==fav.place_id){
-                favorite=true;                
+    $scope.isFav = function (result) {
+        var favorite = false;
+        angular.forEach($scope.fav, function (fav, index) {
+            if (result.place_id == fav.place_id) {
+                favorite = true;
             }
         })
         return favorite;
     }
-    $scope.saveToFav=function(index){
+    $scope.saveToFav = function (index) {
         //console.log("isFav-",$scope.fav.indexOf($scope.results[index]));
-        if(!$scope.fav){
-            $scope.fav=[];
-        }          
-        
+        if (!$scope.fav) {
+            $scope.fav = [];
+        }
+
         $scope.fav.push($scope.results[index]);
         localStorage.setItem("favList", JSON.stringify($scope.fav));
         //
-        
+
     }
     $scope.submitFormData = function () {
         if (!$scope.distance) {
@@ -189,13 +190,37 @@ app.controller("locController", function ($scope, $http) {
     $scope.getDirections = function () {
         calculateAndDisplayRoute(directionsService, directionsDisplay);
     }
-
-    $scope.getDetails = function (result,index) {
-        //init config
-        console.log("resultObj",result);
-        $scope.idSelectedResult=index;
-        $scope.disableDetailsBtn=false;
+    $scope.getPrice = function () {
+        var price = "";
+        for (var i = 0; i < $scope.details.price_level; i++) {
+            price += "$";
+        }
+        console.log("price", price);
+        return price;
+    }
+    $scope.getNumber = function () {
+        //alert(num);
+        var array={};
         
+        if($scope.details.photos!=null)
+        {
+            var num=Math.ceil($scope.details.photos.length/4);
+            console.log(num);
+            return new Array(num);
+        }
+        else{
+            return array;
+        }
+    }
+    $scope.getUrl=function(photo,index){
+        return $scope.details.photos[index].getUrl({ 'maxWidth': 2000, 'maxHeight': 2000 }) ;
+    }
+    $scope.getDetails = function (result, index) {
+        //init config
+        console.log("resultObj", result);
+        $scope.idSelectedResult = index;
+        $scope.disableDetailsBtn = false;
+
         $scope.title = result.name;
         var request = {
             placeId: result.place_id
@@ -211,24 +236,38 @@ app.controller("locController", function ($scope, $http) {
         });
 
         var service = new google.maps.places.PlacesService(map);
-        service.getDetails(request, callback);
-
-        function callback(place, status) {
+        service.getDetails(request, function (place, status) {
 
             if (status == google.maps.places.PlacesServiceStatus.OK) {
                 //console.log(place);
                 $scope.details = place;
-                console.log($scope.details);
+                //console.log("photos-", place.photos[0].getUrl({ 'maxWidth': 35, 'maxHeight': 35 }));
+                //handle Photos
+                //handlePhotos(place);
+                //setRating 
+                $("#rateYo").rateYo({ rating: $scope.details.rating ,readOnly: true,starWidth: "10px"});
+                //$("#rateYo").rateYo("option", "starWidth", "10px");
+                //document.getElementById("rateYo").rateYo("rating", $scope.details.rating);
+                console.log("details obj in callback", $scope.details);
+
+                return $scope.details;
             }
-        }
+        })
         adjustViews();
 
     }
 
+    function handlePhotos(place){
+
+    }
+
     function adjustViews() {
+
         $scope.showFirstPg = false;
         $scope.showDetailsPg = true;
-        console.log($scope.details);
+        console.log("inViews", $scope.details);
+        console.log("inViews", $scope.showFirstPg);
+        console.log("inViews", $scope.showDetailsPg);
     }
     function toggleVisibility(divId) {
         $("#" + divId).toggle();
@@ -240,15 +279,15 @@ app.controller("locController", function ($scope, $http) {
         var selectedMode = document.getElementById('modeOfTransport').value;
 
         var location;
-        if(document.getElementById('start').value==""){
-            location={lat:$scope.latitude,lng:$scope.longitude};
-        }else{
-            location=document.getElementById('start').value;
+        if (document.getElementById('start').value == "") {
+            location = { lat: $scope.latitude, lng: $scope.longitude };
+        } else {
+            location = document.getElementById('start').value;
         }
         //console.log(location);
         directionsService.route({
             //current loc, can be latlan obj - new google.maps.LatLng(41.850033, -87.6500523);
-            origin: location ,
+            origin: location,
             //get it from row, use placeId for eg
             destination: document.getElementById('dest').value,
             //get travel mode from btn click

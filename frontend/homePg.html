@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="travel.css">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.2/jquery.rateyo.min.css">
 </head>
 
 <body ng-app="loadApp" ng-controller="locController" ng-init="disableSearchBtn=true">
@@ -154,8 +154,8 @@
         <div class="animate-hide-r-l" ng-init="showFirstPg=true" ng-show="showFirstPg">
             <!--details button -->
             <div class="detailsBtn">
-                <button type="button" id="detailsBtnId" ng-click="getDetails(fav[idSelectedResult],idSelectedResult)" class="btn btn-outline-dark" ng-init="disableDetailsBtn=true"
-                    ng-disabled="disableDetailsBtn" ng-hide="!resultBlue||results==null || results.length==0">
+                <button type="button" id="detailsBtnId" ng-click="getDetails(fav[idSelectedResult],idSelectedResult)" class="btn btn-outline-dark"
+                    ng-init="disableDetailsBtn=true" ng-disabled="disableDetailsBtn" ng-hide="!resultBlue||results==null || results.length==0">
                     Details
                 </button>
             </div>
@@ -180,11 +180,11 @@
                         <td>{{ result.vicinity }}</td>
                         <td>
                             <button class="btn btn-outline-dark" ng-click="saveToFav($index)">
-                                <span ng-class="isFav(result)?'fa fa-star':'fa fa-star-o'" ></span>
+                                <span ng-class="isFav(result)?'fa fa-star':'fa fa-star-o'"></span>
                             </button>
                         </td>
                         <td>
-                            <button class="btn btn-outline-dark" ng-click="getDetails(result,$index);">
+                            <button class="btn btn-outline-dark" ng-click="getDetails(result,$index)">
                                 <span class="fa fa-angle-right" style="font-size: 19px;"></span>
                             </button>
 
@@ -195,10 +195,10 @@
 
             <!--fav table -->
             <div class="detailsBtn">
-                    <button type="button" id="detailsBtnId" ng-click="getDetails(fav[idSelectedResult],idSelectedResult)" class="btn btn-outline-dark" ng-init="disableDetailsBtn=true"
-                        ng-disabled="disableDetailsBtn" ng-hide="resultBlue|| fav==null || fav.length==0">
-                        Details
-                    </button>
+                <button type="button" id="detailsBtnId" ng-click="getDetails(fav[idSelectedResult],idSelectedResult)" class="btn btn-outline-dark"
+                    ng-init="disableDetailsBtn=true" ng-disabled="disableDetailsBtn" ng-hide="resultBlue|| fav==null || fav.length==0">
+                    Details
+                </button>
             </div>
             <div class="table-responsive" ng-hide="resultBlue || fav==null || fav.length==0">
                 <table class="table">
@@ -292,44 +292,66 @@
                         <br/>
 
                         <table class="table table-striped">
-                            <tr>
+                            <tr ng-if="details.formatted_address">
                                 <th>Address</th>
                                 <td>{{details.formatted_address}}</td>
                             </tr>
-                            <tr>
+                            <tr ng-if="details.international_phone_number">
                                 <th>Phone Number</th>
                                 <td>{{details.international_phone_number}}</td>
                             </tr>
-                            <tr>
+                            <tr ng-if="details.price_level">
                                 <th>Price Level</th>
-                                <td>{{details.price_level}}</td>
+                                <td>{{getPrice()}}</td>
                             </tr>
-                            <tr>
+                            <tr ng-if="details.rating">
                                 <th>Rating</th>
-                                <td>{{details.rating}}</td>
+                                <td>{{details.rating}}
+                                    <div id="rateYo"></div>
+                                </td>
                             </tr>
-                            <tr>
+                            <tr ng-if="details.url">
                                 <th>Google Page</th>
                                 <td>
                                     <a href={{details.url}}>{{details.url}}</a>
                                 </td>
                             </tr>
-                            <tr>
+                            <tr ng-if="details.website">
                                 <th>Website</th>
                                 <td>
                                     <a href={{details.website}}>{{details.website}}</a>
                                 </td>
                             </tr>
-                            <tr>
+                            <tr ng-if="details.opening_hours">
                                 <th>Hours</th>
-                                <td></td>
+                                <td>{{details.opening_hours.open_now?"Open":"Closed"}}</td>
                             </tr>
                         </table>
                     </div>
                     <!-- Photos Gallery -->
                     <div id="photos" class="container tab-pane fade">
-
-
+                        <div ng-init="num=3" ng-repeat="i in getNumber() track by $index">
+                            <div class="row">
+                                <div class="column"  ng-if="details.photos.length>$index*4">                                    
+                                        <img ng-src="{{ getUrl(photo,$index*4) }}" style="width:100%;">                                    
+                                </div>
+                                <div class="column"ng-if="details.photos.length>$index*4+1">
+                                    
+                                        <img ng-src="{{ getUrl(photo,$index*4+1) }}" style="width:100%">
+                                    
+                                </div>
+                                <div class="column"  ng-if="details.photos.length>$index*4+2">
+                                    
+                                        <img ng-src="{{ getUrl(photo,$index*4+2) }}" style="width:100%; height:70%">
+                                    
+                                </div>
+                                <div class="column"  ng-if="details.photos.length>$index*4+3">
+                                    
+                                        <img ng-src="{{ getUrl(photo,$index*4+3) }}" style="width:100%">
+                                    
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <!-- Map-->
                     <div id="mapTab" class="container tab-pane fade">
@@ -395,7 +417,7 @@
 
                                 </div>
                             </div>
-
+                            <!--reviews dropdown -->
                             <div class="dropdown" style="margin-left: 2%;">
                                 <button type="button" ng-init="selectedOrder='Default Order'" ng-bind="selectedOrder" class="btn btn-secondary dropdown-toggle"
                                     data-toggle="dropdown">
@@ -431,6 +453,9 @@
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-animate.min.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWBtO4XwwiZCwCDr6z2aK8rXZMuO0OTNM&libraries=places&callback=initAutocomplete"
     async defer></script>
+
+<!-- rateyo-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.2/jquery.rateyo.min.js"></script>
 <script src="travel.js"></script>
 
 </html>
