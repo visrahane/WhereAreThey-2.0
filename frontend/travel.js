@@ -1,7 +1,5 @@
-/*
-http://csserver.usc.edu:45678/hw/hw8/images/Map.png
-http://csserver.usc.edu:45678/hw/hw8/images/Pegman.png
-http://csserver.usc.edu:45678/hw/hw8/images/Twitter.png
+/*moment.unix(time).format('YYYY-MM-DD h:mm:ss');
+http://cs-server.usc.edu:45678/hw/hw8/images/Twitter.png
 */
 var app = angular.module("loadApp", ["ngAnimate"]);
 app.controller("locController", function ($scope, $http) {
@@ -9,7 +7,11 @@ app.controller("locController", function ($scope, $http) {
     $scope.latitude;
     $scope.longitude;
     $scope.pages = [];
+    $scope.yelpData = [];
     $scope.details = {};
+    $scope.yelpDataDefault = {};
+    $scope.reviewsDefault = {};
+    $scope.twitterLink="";
     $scope.fav = JSON.parse(localStorage.getItem("favList"));
     var currentPage = 0;
     $scope.map;
@@ -33,7 +35,7 @@ app.controller("locController", function ($scope, $http) {
     }
 
     $scope.isFav = function (result) {
-        var favorite = false;
+        var favorite = false;        
         angular.forEach($scope.fav, function (fav, index) {
             if (result.place_id == fav.place_id) {
                 favorite = true;
@@ -42,15 +44,13 @@ app.controller("locController", function ($scope, $http) {
         return favorite;
     }
     $scope.saveToFav = function (index) {
-        //console.log("isFav-",$scope.fav.indexOf($scope.results[index]));
+        console.log("isFav-",index);
         if (!$scope.fav) {
             $scope.fav = [];
         }
-
         $scope.fav.push($scope.results[index]);
         localStorage.setItem("favList", JSON.stringify($scope.fav));
-        //
-
+        
     }
     $scope.submitFormData = function () {
         if (!$scope.distance) {
@@ -195,28 +195,81 @@ app.controller("locController", function ($scope, $http) {
         for (var i = 0; i < $scope.details.price_level; i++) {
             price += "$";
         }
-        console.log("price", price);
         return price;
     }
-    $scope.getNumber = function () {
+    $scope.getNumber = function (num) {
         //alert(num);
-        var array={};
-        
-        if($scope.details.photos!=null)
-        {
-            var num=Math.ceil($scope.details.photos.length/4);
-            console.log(num);
-            return new Array(num);
-        }
-        else{
-            return array;
-        }
+        return new Array(num);
     }
-    $scope.getUrl=function(photo,index){
-        return $scope.details.photos[index].getUrl({ 'maxWidth': 2000, 'maxHeight': 2000 }) ;
+    $scope.getUrl = function (photo, index) {
+        return $scope.details.photos[index].getUrl({ 'maxWidth': 2000, 'maxHeight': 2000 });
+    }
+    $scope.sortReviews = function () {
+        switch ($scope.selectedOrder) {
+            case "Highest Rating":
+                if ($scope.selectedReview == 'Yelp Reviews') {
+                    $scope.yelpData.sort(function (a, b) {
+                        return b.rating - a.rating;
+                    });
+                } else {
+                    $scope.details.reviews.sort(function (a, b) {
+                        return b.rating - a.rating;
+                    });
+                }
+                break;
+            case "Lowest Rating":
+                if ($scope.selectedReview == 'Yelp Reviews') {
+                    $scope.yelpData.sort(function (a, b) {
+                        return a.rating - b.rating;
+                    });
+                } else {
+                    $scope.details.reviews.sort(function (a, b) {
+                        return a.rating - b.rating;
+                    });
+                }
+                break;
+            case "Least Recent":
+                if ($scope.selectedReview == 'Yelp Reviews') {
+                    $scope.yelpData.sort(function (a, b) {
+                        var d1 = new Date(a.time_created);
+                        var d2 = new Date(b.time_created);
+                        return d1 - d2;
+                    });
+                } else {
+                    $scope.details.reviews.sort(function (a, b) {
+                        var d1 = new Date(a.time);
+                        var d2 = new Date(b.time);
+                        return d1 - d2;
+                    });
+                }
+                break;
+            case "Most Recent":
+                if ($scope.selectedReview == 'Yelp Reviews') {
+                    $scope.yelpData.sort(function (a, b) {
+                        var d1 = new Date(a.time_created);
+                        var d2 = new Date(b.time_created);
+                        return d2 - d1;
+                    });
+                } else {
+                    $scope.details.reviews.sort(function (a, b) {
+                        var d1 = new Date(a.time);
+                        var d2 = new Date(b.time);
+                        return d2 - d1;
+                    });
+                } break;
+            case "Default Order":
+            default:
+                if ($scope.selectedReview == 'Yelp Reviews') {
+                    $scope.yelpData = $scope.yelpDataDefault.slice(0);
+                } else {
+                    $scope.details.reviews = $scope.reviewsDefault.slice(0);
+                }
+                break;
+        }
     }
     $scope.getDetails = function (result, index) {
         //init config
+        $scope.placeIndex=index;
         console.log("resultObj", result);
         $scope.idSelectedResult = index;
         $scope.disableDetailsBtn = false;
@@ -240,12 +293,15 @@ app.controller("locController", function ($scope, $http) {
 
             if (status == google.maps.places.PlacesServiceStatus.OK) {
                 //console.log(place);
-                $scope.details = place;
-                //console.log("photos-", place.photos[0].getUrl({ 'maxWidth': 35, 'maxHeight': 35 }));
-                //handle Photos
+                
+                $scope.details  = place;
+                prepareDefaultCopy($scope.details);
                 preparePhotoGallery(place);
+                modifyTimeForReviews(place);
+                getYelpReviews(place);
+                setTwitterText(place);
                 //setRating 
-                $("#rateYo").rateYo({ rating: $scope.details.rating ,readOnly: true,starWidth: "10px"});
+                $("#rateYo").rateYo({ rating: $scope.details.rating, readOnly: true, starWidth: "10px" });
                 //$("#rateYo").rateYo("option", "starWidth", "10px");
                 //document.getElementById("rateYo").rateYo("rating", $scope.details.rating);
                 console.log("details obj in callback", $scope.details);
@@ -256,38 +312,85 @@ app.controller("locController", function ($scope, $http) {
         adjustViews();
 
     }
-function createColumn(){
-    var col=document.createElement("div");
-        col.setAttribute("class","column");
-        return col;
-}
-    function preparePhotoGallery(place){
-        var photoRow=document.getElementById("photoRow");
-        //clear previous data
-        photoRow.innerHTML="";
-       
-        var col1=createColumn();
-        var col2=createColumn();
-        var col3=createColumn();
-        var col4=createColumn();
+    function setTwitterText(place){
+        var websiteUrl="www.google.com";
+        if(place.website!=null){
+            websiteUrl=place.website;
+        }
+        var params = jQuery.param({
+            text: 'Check out '+place.name+" located at "+place.formatted_address+". Website:",
+            url: websiteUrl
+        });
+        var s= "https://twitter.com/intent/tweet?"+params;
+        $scope.twitterLink=s;
+    }
+    function prepareDefaultCopy(details){
+        if(details.reviews!=null){
+            $scope.reviewsDefault=details.reviews.slice(0);
+        }
+    }
+    function getYelpReviews(place) {
+        var address = place.formatted_address.split(",");
+        console.log(address);
+        $http({
+            method: "GET",
+            url: "http://webtechtravel-env.us-east-2.elasticbeanstalk.com/yelpReviews",
+            params: {
+                name: place.name,
+                city: address[1],
+                state: address[2].trim().split(" ")[0],
+                country: "US",
+                latitude: place.geometry.location.lat(),
+                longitude: place.geometry.location.lng(),
+                address1: address[0]
+            }
+        }).then(function mySuccess(response) {
+            console.log("yelp-", response.data);
+            $scope.yelpData =  response.data;
+            $scope.yelpDataDefault =$scope.yelpData.slice(0);
 
-        for(var i=0;place.photos!=null && i<Math.ceil(place.photos.length/4);i++){
-            appendImgToCol(col1,place.photos[i*4]);
-            appendImgToCol(col2,place.photos[i*4+1]);
-            appendImgToCol(col3,place.photos[i*4+2]);
-            appendImgToCol(col4,place.photos[i*4+3]);
+        }, function myError(response) {
+            console.log("Error:", response);
+            $scope.showErrorBox = true;
+        });
+    }
+    function createColumn() {
+        var col = document.createElement("div");
+        col.setAttribute("class", "column");
+        return col;
+    }
+    function modifyTimeForReviews(place) {
+        for (var i = 0; place.reviews != null && i < place.reviews.length; i++) {
+            place.reviews[i].time = moment.unix(place.reviews[i].time).format('YYYY-MM-DD h:mm:ss');
+        }
+    }
+    function preparePhotoGallery(place) {
+        var photoRow = document.getElementById("photoRow");
+        //clear previous data
+        photoRow.innerHTML = "";
+
+        var col1 = createColumn();
+        var col2 = createColumn();
+        var col3 = createColumn();
+        var col4 = createColumn();
+
+        for (var i = 0; place.photos != null && i < Math.ceil(place.photos.length / 4); i++) {
+            appendImgToCol(col1, place.photos[i * 4]);
+            appendImgToCol(col2, place.photos[i * 4 + 1]);
+            appendImgToCol(col3, place.photos[i * 4 + 2]);
+            appendImgToCol(col4, place.photos[i * 4 + 3]);
         }
         photoRow.appendChild(col1);
         photoRow.appendChild(col2);
         photoRow.appendChild(col3);
         photoRow.appendChild(col4);
     }
-    function appendImgToCol(col,photo){
-        var imgTag=document.createElement("img");
-        if(photo!=null){
-        imgTag.setAttribute("src",photo.getUrl({ 'maxWidth': 2000, 'maxHeight': 2000 }));
+    function appendImgToCol(col, photo) {
+        var imgTag = document.createElement("img");
+        if (photo != null) {
+            imgTag.setAttribute("src", photo.getUrl({ 'maxWidth': 2000, 'maxHeight': 2000 }));
         }
-        imgTag.setAttribute("width","100%");
+        imgTag.setAttribute("width", "100%");
         col.appendChild(imgTag);
     }
     function adjustViews() {

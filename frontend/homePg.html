@@ -264,12 +264,29 @@
             <div class="card-body">
                 <h4 class="card-title">{{title}}</h4>
                 <!--<List -->
+
                 <div class="listBtn">
                     <button type="button" id="listBtnId" class="btn btn-outline-dark" ng-click="showFirstPg=true;
                     showDetailsPg=false;">
                         <span class="fa fa-angle-left" style="font-weight: bold;"></span> List
                     </button>
+
+                    <!--Twitter -->
+                    <div class="tweetAndFavBtns">
+
+                        <!--Fav -->
+                        <button class="btn btn-outline-dark" ng-init="placeIndex=0" ng-click="saveToFav(placeIndex)">
+                            <span ng-class="isFav(details)?'fa fa-star':'fa fa-star-o'"></span>
+                        </button>
+                        <!-- tweet btn-->
+
+                        <a href={{twitterLink}}>
+                            <img src="http://cs-server.usc.edu:45678/hw/hw8/images/Twitter.png" style="height: 32px;width: 32px;">
+                        </a>
+                    </div>
+
                 </div>
+                <br>
                 <ul class="nav nav-tabs justify-content-end" role="tablist">
                     <li class="nav-item">
                         <a class="nav-link active" data-toggle="tab" href="#info">Info</a>
@@ -329,9 +346,8 @@
                         </table>
                     </div>
                     <!-- Photos Gallery -->
-                    <div id="photos" class="container tab-pane fade">                        
-                        <div class="row" id="photoRow">                              
-                          
+                    <div id="photos" class="container tab-pane fade">
+                        <div class="row" id="photoRow">
                         </div>
                     </div>
                     <!-- Map-->
@@ -385,7 +401,8 @@
                     </div>
                     <!-- Reviews-->
                     <div id="reviews" class="container tab-pane fade">
-                        <form class="form-inline">
+                        <br>
+                        <div class="row">
                             <!--reviews dropdown -->
                             <div class="dropdown">
                                 <button type="button" ng-init="selectedReview='Google Reviews'" ng-bind="selectedReview" class="btn btn-secondary dropdown-toggle"
@@ -405,17 +422,49 @@
                                     {{selectedOrder}}
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" ng-click="selectedOrder='Default Order'">Default Order</a>
-                                    <a class="dropdown-item" ng-click="selectedOrder='Highest Rating'">Highest Rating</a>
-                                    <a class="dropdown-item" ng-click="selectedOrder='Lowest Rating'">Lowest Rating</a>
-                                    <a class="dropdown-item" ng-click="selectedOrder='Most Recent'">Most Recent</a>
-                                    <a class="dropdown-item" ng-click="selectedOrder='Least Recent'">Least Recent</a>
+                                    <a class="dropdown-item" ng-click="selectedOrder='Default Order';sortReviews()">Default Order</a>
+                                    <a class="dropdown-item" ng-click="selectedOrder='Highest Rating';sortReviews()">Highest Rating</a>
+                                    <a class="dropdown-item" ng-click="selectedOrder='Lowest Rating';sortReviews()">Lowest Rating</a>
+                                    <a class="dropdown-item" ng-click="selectedOrder='Most Recent';sortReviews()">Most Recent</a>
+                                    <a class="dropdown-item" ng-click="selectedOrder='Least Recent';sortReviews()">Least Recent</a>
+                                </div>
+                            </div>
+                        </div>
+                        <!--google reviews -->
+                        <div ng-repeat="review in details.reviews track by $index" ng-show="selectedReview=='Google Reviews'" class="row" style="margin-top: 1%">
+                            <div class="card" style="width:100%">
+                                <div class="card-body">
+
+                                    <a href={{review.author_url}} target="_blank">
+                                        <img style="width:4%" ng-src="{{review.profile_photo_url}}" class="img-fluid rounded-circle">
+                                    </a>
+                                    <div style="margin-left: 5%;margin-top: -4%;">
+                                        <a href={{review.author_url}} target="_blank">{{review.author_name}}</a>
+                                        <div id="rateYo">{{review.rating}} {{review.time}}
+                                        </div>
+                                        <div>{{review.text}}</div>
+                                    </div>
                                 </div>
                             </div>
 
+                        </div>
+                        <!--yelp reviews -->
+                        <div ng-repeat="review in yelpData track by $index" ng-show="selectedReview=='Yelp Reviews'" class="row" style="margin-top: 1%">
+                            <div class="card" style="width:100%">
+                                <div class="card-body">
+                                    <a href={{review.url}} target="_blank">
+                                        <img style="width:4%" ng-src="{{review.user.image_url}}" class="img-fluid rounded-circle">
+                                    </a>
+                                    <div style="margin-left: 5%;margin-top: -4%;">
+                                        <a href={{review.url}} target="_blank">{{review.user.name}}</a>
+                                        <div id="rateYo">{{review.rating}} {{review.time_created}}
+                                        </div>
+                                        <div>{{review.text}}</div>
+                                    </div>
+                                </div>
+                            </div>
 
-
-                        </form>
+                        </div>
 
                     </div>
                 </div>
@@ -438,5 +487,8 @@
 <!-- rateyo-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.2/jquery.rateyo.min.js"></script>
 <script src="travel.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.js"></script>
+<!-- twitter-->
+<script type="text/javascript" async src="https://platform.twitter.com/widgets.js"></script>
 
 </html>
