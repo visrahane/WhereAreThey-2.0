@@ -10,7 +10,7 @@ exports.getYelpReviews = function (request, response) {
     var yelpBestMatchJson = getBusinessMatch(request.query, function (bestMatchJson) {
         console.log("bestMatch output:", bestMatchJson.businesses);//.jsonBody.businesses[0].id
         //call reviews if businesses details match with incoming request details
-        if (isBestMatch(bestMatchJson.businesses, request.query)) {
+        if (true) {
             client.reviews(bestMatchJson.businesses[0].id).then(reviewResponse => {
                 console.log("Reviews:", reviewResponse.jsonBody.reviews);
                 response.send(reviewResponse.jsonBody.reviews);
