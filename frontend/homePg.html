@@ -192,7 +192,10 @@
                     </tr>
                 </table>
             </div>
-
+            <!--No records box -->
+            <div class="alert alert-warning" ng-init="showNoRecordsBox=false" ng-show="showNoRecordsBox||results.length == 0">
+                No records.
+            </div>
             <!--fav table -->
             <div class="detailsBtn">
                 <button type="button" id="detailsBtnId" ng-click="getDetails(fav[idSelectedResult],idSelectedResult)" class="btn btn-outline-dark"
@@ -231,13 +234,17 @@
                     </tr>
                 </table>
             </div>
+            <!--No records fav box -->
+            <div class="alert alert-warning" style="margin-top:10%" ng-init="" ng-show="!resultBlue && fav!=null && fav.length!=0">
+                No records.
+            </div>
             <!--Pagination buttons -->
             <div class="text-center">
-                <button type="button" id="prevBtn" class="btn btn-outline-dark equal-btn hidden" ng-click="showProgressBar=true;fetchPrev()"
-                    style="margin-right:18px">
+                <button type="button" id="prevBtn" class="btn btn-outline-dark equal-btn hidden" ng-click="fetchPrev()"
+                style="margin-right:18px">
                     Previous
                 </button>
-                <button type="button" id="nextBtn" class="btn btn-outline-dark equal-btn hidden" ng-click="showProgressBar=true;fetchNext()">
+                <button type="button" id="nextBtn" class="btn btn-outline-dark equal-btn hidden" ng-click="fetchNext()">
                     Next
                 </button>
             </div>
@@ -255,10 +262,7 @@
             Failed To get search results.
         </div>
 
-        <!--No records box -->
-        <div class="alert alert-warning" ng-init="showNoRecordsBox=false" ng-show="results.length == 0">
-            No records.
-        </div>
+
 
         <!--DetailsPg -->
         <div class="card animate-hide-l-r" style="border:0;" ng-init="showDetailsPg=false" ng-show="showDetailsPg">
@@ -332,19 +336,18 @@
                             <tr ng-if="details.url">
                                 <th>Google Page</th>
                                 <td>
-                                    <a href={{details.url}}>{{details.url}}</a>
+                                    <a href={{details.url}} target="_blank">{{details.url}}</a>
                                 </td>
                             </tr>
                             <tr ng-if="details.website">
                                 <th>Website</th>
                                 <td>
-                                    <a href={{details.website}}>{{details.website}}</a>
+                                    <a href={{details.website}} target="_blank">{{details.website}}</a>
                                 </td>
                             </tr>
                             <tr ng-if="details.opening_hours">
                                 <th>Hours</th>
-                                <td>{{details.opening_hours.open_now?"Open now":"Closed"}} 
-                                    {{details.opening_hours.open_now?time:''}}
+                                <td>{{details.opening_hours.open_now?"Open now":"Closed"}} {{details.opening_hours.open_now?time:''}}
                                     <a href="#myModal" data-toggle="modal" data-target="#myModal">Daily Open Hours</a>
                                 </td>
                             </tr>
@@ -362,7 +365,7 @@
 
                                     <!-- Modal body -->
                                     <div class="modal-body">
-                                        <table class="table" id="openHoursTable">                                         
+                                        <table class="table" id="openHoursTable">
                                         </table>
                                     </div>
 
@@ -429,6 +432,10 @@
 
                         <div id="streetView" ng-show="showStreetView"></div>
                         <div id="directionInfo"></div>
+                        <!--Error Tab -->
+                        <div class="alert alert-danger" ng-init="mapErrorBox=false" ng-show="mapErrorBox">
+                            Failed To get search results.
+                        </div>
                     </div>
                     <!-- Reviews-->
                     <div id="reviews" class="container tab-pane fade">
@@ -462,7 +469,8 @@
                             </div>
                         </div>
                         <!--google reviews -->
-                        <div ng-repeat="review in details.reviews track by $index" ng-show="selectedReview=='Google Reviews'" class="row" style="margin-top: 1%">
+                        <div ng-repeat="review in details.reviews track by $index" ng-show="selectedReview=='Google Reviews'" class="row animate-hide"
+                            style="margin-top: 1%">
                             <div class="card" style="width:100%">
                                 <div class="card-body">
 
@@ -482,8 +490,12 @@
                             </div>
 
                         </div>
+                        <!--No records box -->
+                        <div class="alert alert-warning" style="margin-top:10%" ng-init="" ng-show="details.reviews.length == 0">
+                            No records.
+                        </div>
                         <!--yelp reviews -->
-                        <div ng-repeat="review in yelpData track by $index" ng-show="selectedReview=='Yelp Reviews'" class="row" style="margin-top: 1%">
+                        <div ng-repeat="review in yelpData track by $index" ng-show="selectedReview=='Yelp Reviews'" class="row animate-hide" style="margin-top: 1%">
                             <div class="card" style="width:100%">
                                 <div class="card-body">
                                     <a href={{review.url}} target="_blank">
@@ -493,13 +505,17 @@
                                         <a href={{review.url}} target="_blank">{{review.user.name}}</a>
                                         <div class="oneLine">
                                             <div id="" class=" rateyo oneLineDiv" data-rateyo-rating={{review.rating}}></div>
-                                            <p class="oneLineDiv">{{review.rating}} {{review.time_created}}</p>
+                                            <p class="oneLineDiv">{{review.time_created}}</p>
                                         </div>
                                         <div>{{review.text}}</div>
                                     </div>
                                 </div>
                             </div>
 
+                        </div>
+                        <!--No records box -->
+                        <div class="alert alert-warning" style="margin-top:10%" ng-init="" ng-show="yelpData.length == 0">
+                            No records.
                         </div>
 
                     </div>

@@ -28,7 +28,7 @@ nav nav-tabs justify-content-end {
     margin-top:1%;
 }
 .selected{
-    background-color:#ffc107;
+    background-color:#eeb509;
 }
 .blue-text{
     color:blue;
@@ -112,3 +112,19 @@ nav nav-tabs justify-content-end {
     max-width: 100%;
   }
 }
+
+
+.animate-hide.ng-hide-remove {
+  -webkit-transition:all linear 1s;
+  -moz-transition:all linear 1s;
+  -ms-transition:all linear 1s;
+  -o-transition:all linear 1s;
+  transition:all linear 1s;
+  opacity: 0;
+}
+
+.animate-hide.ng-hide-remove.ng-hide-remove-active {
+  opacity: 1;
+  display: block !important;
+}
+

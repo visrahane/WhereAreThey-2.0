@@ -266,7 +266,7 @@ app.controller("locController", function ($scope, $http) {
                 break;
         }
         $(function () {
-            setRatingN();
+            setRating();
         });
 
 
@@ -423,8 +423,10 @@ app.controller("locController", function ($scope, $http) {
                 $scope.yelpDataDefault = $scope.yelpData.slice(0);
                 
                 $(function () {
-                    setRatingN($scope.yelpData);
+                    setRating($scope.yelpData);
                 });
+            }else{
+                $scope.yelpData ="";
             }
 
         }, function myError(response) {
@@ -448,7 +450,7 @@ app.controller("locController", function ($scope, $http) {
     }
     function setRating() {
         $(".rateyo").rateYo({
-            readOnly: true, starWidth: "15px"
+            readOnly: true, starWidth: "15px",normalFill: "white"
         });
     }
     function createColumn() {
@@ -507,15 +509,17 @@ app.controller("locController", function ($scope, $http) {
     }
     function calculateAndDisplayRoute(directionsService, directionsDisplay) {
         marker.setMap(null);
+        $scope.mapErrorBox=false;
         directionsDisplay.setPanel(document.getElementById('directionInfo'));
 
         var selectedMode = document.getElementById('modeOfTransport').value;
 
+        var startLocation=document.getElementById('start').value;
         var location;
-        if (document.getElementById('start').value == "") {
+        if ( startLocation== "" || startLocation.toUpperCase()=="MY LOCATION") {
             location = { lat: $scope.latitude, lng: $scope.longitude };
         } else {
-            location = document.getElementById('start').value;
+            location = startLocation;
         }
         //console.log(location);
         directionsService.route({
@@ -532,7 +536,10 @@ app.controller("locController", function ($scope, $http) {
             if (status === 'OK') {
                 directionsDisplay.setDirections(response);
             } else {
-                window.alert('Directions request failed due to ' + status);
+                $scope.$apply(function () {
+                    $scope.mapErrorBox=true;
+                });
+                
             }
         });
     }
