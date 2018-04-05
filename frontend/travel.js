@@ -11,7 +11,7 @@ app.controller("locController", function ($scope, $http) {
     $scope.details = {};
     $scope.yelpDataDefault = {};
     $scope.reviewsDefault = {};
-    $scope.twitterLink="";
+    $scope.twitterLink = "";
     $scope.fav = JSON.parse(localStorage.getItem("favList"));
     var currentPage = 0;
     $scope.map;
@@ -35,7 +35,7 @@ app.controller("locController", function ($scope, $http) {
     }
 
     $scope.isFav = function (result) {
-        var favorite = false;        
+        var favorite = false;
         angular.forEach($scope.fav, function (fav, index) {
             if (result.place_id == fav.place_id) {
                 favorite = true;
@@ -44,13 +44,13 @@ app.controller("locController", function ($scope, $http) {
         return favorite;
     }
     $scope.saveToFav = function (index) {
-        console.log("isFav-",index);
+        console.log("isFav-", index);
         if (!$scope.fav) {
             $scope.fav = [];
         }
         $scope.fav.push($scope.results[index]);
         localStorage.setItem("favList", JSON.stringify($scope.fav));
-        
+
     }
     $scope.submitFormData = function () {
         if (!$scope.distance) {
@@ -170,13 +170,11 @@ app.controller("locController", function ($scope, $http) {
                 pov: { heading: 165, pitch: 0 },
                 zoom: 1
             });
-        panorama.setVisible(true);
-
+        //panorama.setVisible(true);
+        //$scope.map.setStreetView(panorama);
     }
 
     $scope.setImage = function () {
-        //console.log(panorama);
-
         if ($scope.showStreetView) {
             $scope.mapBtnSrc = 'http://cs-server.usc.edu:45678/hw/hw8/images/Pegman.png';
         } else {
@@ -266,10 +264,16 @@ app.controller("locController", function ($scope, $http) {
                 }
                 break;
         }
+        $(function () {
+            setRatingN();
+        });
+
+
+
     }
     $scope.getDetails = function (result, index) {
         //init config
-        $scope.placeIndex=index;
+        $scope.placeIndex = index;
         console.log("resultObj", result);
         $scope.idSelectedResult = index;
         $scope.disableDetailsBtn = false;
@@ -293,17 +297,24 @@ app.controller("locController", function ($scope, $http) {
 
             if (status == google.maps.places.PlacesServiceStatus.OK) {
                 //console.log(place);
+                $scope.$apply(function () {
+                    $scope.details = place;
+                });
                 
-                $scope.details  = place;
                 prepareDefaultCopy($scope.details);
                 preparePhotoGallery(place);
                 modifyTimeForReviews(place);
                 getYelpReviews(place);
                 setTwitterText(place);
-                //setRating 
-                $("#rateYo").rateYo({ rating: $scope.details.rating, readOnly: true, starWidth: "10px" });
-                //$("#rateYo").rateYo("option", "starWidth", "10px");
-                //document.getElementById("rateYo").rateYo("rating", $scope.details.rating);
+                prepareOpenHoursTable(place);
+                
+                $(function () {
+                    setRating();
+                    //$("#rate"+place.place_id).rateYo({ rating: $scope.details.rating, readOnly: true, starWidth: "15px" });
+                });
+                if($scope.details.reviews!=null){
+                    //setRatingN($scope.details.reviews);
+                }
                 console.log("details obj in callback", $scope.details);
 
                 return $scope.details;
@@ -312,46 +323,120 @@ app.controller("locController", function ($scope, $http) {
         adjustViews();
 
     }
-    function setTwitterText(place){
-        var websiteUrl="www.google.com";
-        if(place.website!=null){
-            websiteUrl=place.website;
+    function createDayRow(dayTime) {
+        var tr = document.createElement("tr");
+        var td1 = document.createElement("td");
+        var td2 = document.createElement("td");
+        var day = dayTime.split("y:");
+        td1.appendChild(document.createTextNode(day[0]+"y"));
+        td2.appendChild(document.createTextNode(day[1]));
+        tr.appendChild(td1);
+        tr.appendChild(td2);
+        return tr;
+
+    }
+    function prepareOpenHoursTable(place) {
+        var todaysDay = moment(new Date()).day()-1;
+        if(todaysDay==-1)todaysDay=6;//Sunday
+        console.log("todaysDay",todaysDay);
+        if (place.opening_hours != null) {
+            var weekSchedule = place.opening_hours.weekday_text;
+            for (var i = todaysDay; i < 7; i++) {
+                var tr=createDayRow(weekSchedule[i]);
+                document.getElementById("openHoursTable").append(tr);
+            }
+            for (var i = 0; i < todaysDay; i++) {
+                var tr=createDayRow(weekSchedule[i]);
+                document.getElementById("openHoursTable").append(tr);
+            }
+        }
+    }
+
+    function setTwitterText(place) {
+        var websiteUrl = "www.google.com";
+        if (place.website != null) {
+            websiteUrl = place.website;
         }
         var params = jQuery.param({
-            text: 'Check out '+place.name+" located at "+place.formatted_address+". Website:",
+            text: 'Check out ' + place.name + " located at " + place.formatted_address + ". Website:",
             url: websiteUrl
         });
-        var s= "https://twitter.com/intent/tweet?"+params;
-        $scope.twitterLink=s;
+        var s = "https://twitter.com/intent/tweet?" + params;
+        $scope.twitterLink = s;
     }
-    function prepareDefaultCopy(details){
-        if(details.reviews!=null){
-            $scope.reviewsDefault=details.reviews.slice(0);
+    function prepareDefaultCopy(details) {
+        if (details.reviews != null) {
+            $scope.reviewsDefault = details.reviews.slice(0);
         }
+    }
+    function getAddress(addressComponent) {
+        var address = {}
+
+        for (var i = 0; i < addressComponent.length; i++) {
+
+            if (addressComponent[i].types.includes("street_number")) {
+                address[0] = addressComponent[i].short_name;
+            } else if (addressComponent[i].types.includes("route")) {
+                address[1] = addressComponent[i].short_name;
+            } else if (addressComponent[i].types.includes("locality")) {
+                address[2] = addressComponent[i].short_name;
+            } else if (addressComponent[i].types.includes("administrative_area_level_1")) {
+                address[3] = addressComponent[i].short_name;
+            } else if (addressComponent[i].types.includes("country")) {
+                address[4] = addressComponent[i].short_name;
+            }
+        }
+        return address;
     }
     function getYelpReviews(place) {
         var address = place.formatted_address.split(",");
-        console.log(address);
+        address = getAddress(place.address_components);
+        console.log("Address-", address);
         $http({
             method: "GET",
             url: "http://webtechtravel-env.us-east-2.elasticbeanstalk.com/yelpReviews",
             params: {
                 name: place.name,
-                city: address[1],
-                state: address[2].trim().split(" ")[0],
-                country: "US",
+                city: address[2],
+                state: address[3],
+                country: address[4],
                 latitude: place.geometry.location.lat(),
                 longitude: place.geometry.location.lng(),
-                address1: address[0]
+                address1: address[0] + " " + address[1]
             }
         }).then(function mySuccess(response) {
             console.log("yelp-", response.data);
-            $scope.yelpData =  response.data;
-            $scope.yelpDataDefault =$scope.yelpData.slice(0);
+            $scope.yelpData = response.data;
+            if ($scope.yelpData.message == null) {//has rating
+                $scope.yelpDataDefault = $scope.yelpData.slice(0);
+                
+                $(function () {
+                    setRatingN($scope.yelpData);
+                });
+            }
 
         }, function myError(response) {
             console.log("Error:", response);
             $scope.showErrorBox = true;
+        });
+    }
+    function setRatingN(reviews) {
+        
+        //console.log("reviewsAS",reviews);
+        for (var i = 0; reviews != null && i < reviews.length; i++) {
+            var id = i;
+            console.log("#rating", reviews[i].rating);
+            $("#rating" + id).rateYo({
+                readOnly: true, starWidth: "15px",
+                rating: reviews[i].rating
+            });
+
+        }
+
+    }
+    function setRating() {
+        $(".rateyo").rateYo({
+            readOnly: true, starWidth: "15px"
         });
     }
     function createColumn() {
@@ -389,9 +474,13 @@ app.controller("locController", function ($scope, $http) {
         var imgTag = document.createElement("img");
         if (photo != null) {
             imgTag.setAttribute("src", photo.getUrl({ 'maxWidth': 2000, 'maxHeight': 2000 }));
+            imgTag.onclick = openWindow;
         }
         imgTag.setAttribute("width", "100%");
         col.appendChild(imgTag);
+    }
+    function openWindow() {
+        window.open(this.src);
     }
     function adjustViews() {
 
@@ -423,7 +512,9 @@ app.controller("locController", function ($scope, $http) {
             //get it from row, use placeId for eg
             destination: document.getElementById('dest').value,
             //get travel mode from btn click
-            travelMode: google.maps.TravelMode[selectedMode]
+            travelMode: google.maps.TravelMode[selectedMode],
+
+            provideRouteAlternatives: true
 
         }, function (response, status) {
             if (status === 'OK') {
@@ -440,6 +531,22 @@ app.controller("locController", function ($scope, $http) {
     }*/
 
 });
+
+/*$("#rate1").ready(function(){
+    $("#rate1").rateYo({ rating: $scope.details.rating, readOnly: true, starWidth: "10px" });
+})*/
+$(function () {
+    $(".rateyo").rateYo({
+        readOnly: true, starWidth: "15px"
+    });
+});
+$(function () {
+    $(".rateyo").rateYo().on("rateyo.change", function (e, data) {
+        var rating = data.rating;
+        $(this).rateYo("option", "rating", rating);
+        console("rating", rating);
+    });
+})
 
 var autocomplete;
 function initAutocomplete() {

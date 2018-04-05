@@ -259,6 +259,7 @@
         <div class="alert alert-warning" ng-init="showNoRecordsBox=false" ng-show="results.length == 0">
             No records.
         </div>
+
         <!--DetailsPg -->
         <div class="card animate-hide-l-r" style="border:0;" ng-init="showDetailsPg=false" ng-show="showDetailsPg">
             <div class="card-body">
@@ -321,10 +322,11 @@
                                 <th>Price Level</th>
                                 <td>{{getPrice()}}</td>
                             </tr>
-                            <tr ng-if="details.rating">
+                            <tr ng-if="details.rating" class="oneLine">
                                 <th>Rating</th>
-                                <td>{{details.rating}}
-                                    <div id="rateYo"></div>
+                                <td>
+                                    <p class="oneLineDiv">{{details.rating}}</p>
+                                    <div id="" class="rateyo oneLineDiv" data-rateyo-rating={{details.rating}}></div>
                                 </td>
                             </tr>
                             <tr ng-if="details.url">
@@ -341,9 +343,37 @@
                             </tr>
                             <tr ng-if="details.opening_hours">
                                 <th>Hours</th>
-                                <td>{{details.opening_hours.open_now?"Open":"Closed"}}</td>
+                                <td>{{details.opening_hours.open_now?"Open:":"Closed"}}
+                                    <a href="#myModal" data-toggle="modal" data-target="#myModal">Daily Open Hours</a>
+                                </td>
                             </tr>
                         </table>
+                        <!-- The Modal -->
+                        <div class="modal fade" id="myModal">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Open hours</h4>
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    </div>
+
+                                    <!-- Modal body -->
+                                    <div class="modal-body">
+                                        <table class="table" id="openHoursTable">                                         
+                                        </table>
+                                    </div>
+
+                                    <!-- Modal footer -->
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                     <!-- Photos Gallery -->
                     <div id="photos" class="container tab-pane fade">
@@ -438,9 +468,12 @@
                                     <a href={{review.author_url}} target="_blank">
                                         <img style="width:4%" ng-src="{{review.profile_photo_url}}" class="img-fluid rounded-circle">
                                     </a>
-                                    <div style="margin-left: 5%;margin-top: -4%;">
+                                    <div style="margin-left: 5%;margin-top: -5%;">
                                         <a href={{review.author_url}} target="_blank">{{review.author_name}}</a>
-                                        <div id="rateYo">{{review.rating}} {{review.time}}
+                                        <div class="oneLine">
+                                            <div id="" class="rateyo oneLineDiv" data-rateyo-rating={{review.rating}}></div>
+
+                                            <p class="oneLineDiv">{{review.time}}</p>
                                         </div>
                                         <div>{{review.text}}</div>
                                     </div>
@@ -455,9 +488,11 @@
                                     <a href={{review.url}} target="_blank">
                                         <img style="width:4%" ng-src="{{review.user.image_url}}" class="img-fluid rounded-circle">
                                     </a>
-                                    <div style="margin-left: 5%;margin-top: -4%;">
+                                    <div style="margin-left: 5%;margin-top: -5%;">
                                         <a href={{review.url}} target="_blank">{{review.user.name}}</a>
-                                        <div id="rateYo">{{review.rating}} {{review.time_created}}
+                                        <div class="oneLine">
+                                            <div id="" class=" rateyo oneLineDiv" data-rateyo-rating={{review.rating}}></div>
+                                            <p class="oneLineDiv">{{review.rating}} {{review.time_created}}</p>
                                         </div>
                                         <div>{{review.text}}</div>
                                     </div>

@@ -36,6 +36,17 @@ nav nav-tabs justify-content-end {
 .fa.fa-star{
     color:yellow;
 }
+.oneLine{
+    white-space: nowrap !important;
+    max-width: 100%;
+    overflow: auto;
+}
+.oneLineDiv{
+    float: none !important;
+    display: inline-block !important;
+    margin-top: auto;
+    margin-bottom: auto;
+}
 
 /* Create map and streetView */
 #map {
