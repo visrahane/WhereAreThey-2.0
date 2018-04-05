@@ -15,6 +15,7 @@ app.controller("locController", function ($scope, $http) {
     $scope.fav = JSON.parse(localStorage.getItem("favList"));
     var currentPage = 0;
     $scope.map;
+    $scope.time={};
 
     $http({
         method: "GET",
@@ -323,10 +324,10 @@ app.controller("locController", function ($scope, $http) {
         adjustViews();
 
     }
-    function createDayRow(dayTime) {
+    function createDayRow(dayTime,rowType) {
         var tr = document.createElement("tr");
-        var td1 = document.createElement("td");
-        var td2 = document.createElement("td");
+        var td1 = document.createElement(rowType);
+        var td2 = document.createElement(rowType);
         var day = dayTime.split("y:");
         td1.appendChild(document.createTextNode(day[0]+"y"));
         td2.appendChild(document.createTextNode(day[1]));
@@ -336,17 +337,28 @@ app.controller("locController", function ($scope, $http) {
 
     }
     function prepareOpenHoursTable(place) {
-        var todaysDay = moment(new Date()).day()-1;
+        //get todays date
+        var todaysDate=moment(new Date()).utcOffset(place.utc_offset);
+        console.log(todaysDate);
+        var todaysDay = todaysDate.day()-1;
+        
         if(todaysDay==-1)todaysDay=6;//Sunday
         console.log("todaysDay",todaysDay);
         if (place.opening_hours != null) {
             var weekSchedule = place.opening_hours.weekday_text;
+            $scope.time=weekSchedule[todaysDay].split("y:")[1];
+            console.log("time",$scope.time);
             for (var i = todaysDay; i < 7; i++) {
-                var tr=createDayRow(weekSchedule[i]);
+                var tr;
+                if(i==todaysDay){//highlight the current day
+                    tr=createDayRow(weekSchedule[i],"th");
+                }else{
+                    tr=createDayRow(weekSchedule[i],"td");
+                }
                 document.getElementById("openHoursTable").append(tr);
             }
             for (var i = 0; i < todaysDay; i++) {
-                var tr=createDayRow(weekSchedule[i]);
+                var tr=createDayRow(weekSchedule[i],"td");
                 document.getElementById("openHoursTable").append(tr);
             }
         }
