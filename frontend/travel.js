@@ -158,9 +158,6 @@ app.controller("locController", function ($scope, $http) {
         directionsDisplay = new google.maps.DirectionsRenderer;
         directionsDisplay.setMap($scope.map);
 
-        //remove this
-        //initStreetView();
-
     }
     var panorama;
     $scope.initStreetView = function () {
@@ -176,7 +173,8 @@ app.controller("locController", function ($scope, $http) {
     }
 
     $scope.setImage = function () {
-        if ($scope.showStreetView) {
+        if ($scope.showStreetView) {            
+            window.focus();
             $scope.mapBtnSrc = 'http://cs-server.usc.edu:45678/hw/hw8/images/Pegman.png';
         } else {
             $scope.mapBtnSrc = "http://cs-server.usc.edu:45678/hw/hw8/images/Map.png";
