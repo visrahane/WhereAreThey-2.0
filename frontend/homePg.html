@@ -478,7 +478,7 @@
                                         <a href={{review.author_url}} target="_blank">
                                             <img style="width:4%" ng-src="{{review.profile_photo_url}}" class="img-fluid rounded-circle">
                                         </a>
-                                        <div style="margin-left: 5%;margin-top: -5%;">
+                                        <div style="margin-left: 5%;margin-top: -4%;">
                                             <a href={{review.author_url}} target="_blank">{{review.author_name}}</a>
                                             <div class="oneLine">
                                                 <div id="" class="rateyo oneLineDiv" data-rateyo-rating={{review.rating}}></div>
@@ -498,13 +498,13 @@
                         </div>
                         <!--yelp reviews -->
                         <div class="yelpReview animate-hide" ng-show="selectedReview=='Yelp Reviews'">
-                            <div ng-repeat="review in yelpData track by $index" ng-show="" class="row" style="margin-top: 1%">
+                            <div ng-repeat="review in yelpData track by $index" class="row" style="margin-top: 1%">
                                 <div class="card" style="width:100%">
                                     <div class="card-body">
                                         <a href={{review.url}} target="_blank">
                                             <img style="width:4%" ng-src="{{review.user.image_url}}" class="img-fluid rounded-circle">
                                         </a>
-                                        <div style="margin-left: 5%;margin-top: -5%;">
+                                        <div style="margin-left: 5%;margin-top: -4%;">
                                             <a href={{review.url}} target="_blank">{{review.user.name}}</a>
                                             <div class="oneLine">
                                                 <div id="" class=" rateyo1 oneLineDiv" data-rateyo-rating={{review.rating}}></div>
@@ -528,23 +528,22 @@
         </div>
     </div>
 </body>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-
-
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-touch.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-animate.min.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWBtO4XwwiZCwCDr6z2aK8rXZMuO0OTNM&libraries=places&callback=initAutocomplete"
-    async defer></script>
-
 <!-- rateyo-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.2/jquery.rateyo.min.js"></script>
 <script src="travel.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.js"></script>
 <!-- twitter-->
 <script type="text/javascript" async src="https://platform.twitter.com/widgets.js"></script>
+<script src="travel.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWBtO4XwwiZCwCDr6z2aK8rXZMuO0OTNM&libraries=places&callback=initAutocomplete"
+    async defer></script>
 
 </html>

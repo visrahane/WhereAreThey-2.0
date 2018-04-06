@@ -173,7 +173,7 @@ app.controller("locController", function ($scope, $http) {
     }
 
     $scope.setImage = function () {
-        if ($scope.showStreetView) {            
+        if ($scope.showStreetView) {
             window.focus();
             $scope.mapBtnSrc = 'http://cs-server.usc.edu:45678/hw/hw8/images/Pegman.png';
         } else {
@@ -318,9 +318,8 @@ app.controller("locController", function ($scope, $http) {
                     }
                 });
                 if (place.rating != null) {
-                    var rate=place.rating/Math.ceil(place.rating)*100+"%";
-                    console.log("rate",rate);
-                    $("#" + place.place_id).rateYo({ rating: rate, readOnly: true, starWidth: "15px" });
+                    var rate = place.rating / Math.ceil(place.rating) * 100 + "%";
+                    $("#" + place.place_id).rateYo({ rating: rate, readOnly: true, starWidth: "15px", normalFill: "transparent" });
                     $("#" + place.place_id).rateYo("option", "rating", rate);
                     $("#" + place.place_id).rateYo("option", "numStars", Math.ceil(place.rating));
                     //
@@ -435,7 +434,7 @@ app.controller("locController", function ($scope, $http) {
                     setRating($scope.yelpData, "1");
                 });
             } else {
-                $scope.yelpData = [];                
+                $scope.yelpData = [];
             }
 
         }, function myError(response) {
@@ -460,10 +459,10 @@ app.controller("locController", function ($scope, $http) {
     function setRating(review, index) {
         $('.rateyo' + index).each(function (i, obj) {
             $(this).rateYo({
-                readOnly: true, starWidth: "15px", normalFill: "white"
+                readOnly: true, starWidth: "15px", normalFill: "transparent"
             });
             //console.log("review",review[i]);
-            var rate=review[i].rating/Math.ceil(review[i].rating)*100+"%";
+            var rate = review[i].rating / Math.ceil(review[i].rating) * 100 + "%";
             $(this).rateYo("option", "rating", rate);
             $(this).rateYo("option", "numStars", Math.ceil(review[i].rating));
         });
