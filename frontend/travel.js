@@ -15,7 +15,7 @@ app.controller("locController", function ($scope, $http) {
     $scope.fav = JSON.parse(localStorage.getItem("favList"));
     var currentPage = 0;
     $scope.map;
-    $scope.time={};
+    $scope.time = {};
 
     $http({
         method: "GET",
@@ -265,11 +265,15 @@ app.controller("locController", function ($scope, $http) {
                 }
                 break;
         }
-        $(function () {
-            setRating();
-        });
-
-
+        if ($scope.selectedReview == 'Yelp Reviews') {
+            $(function () {
+                setRating($scope.details.reviews, "1");
+            });
+        } else {
+            $(function () {
+                setRating($scope.details.reviews, "");
+            });
+        }
 
     }
     $scope.getDetails = function (result, index) {
@@ -301,35 +305,42 @@ app.controller("locController", function ($scope, $http) {
                 $scope.$apply(function () {
                     $scope.details = place;
                 });
-                
+
                 prepareDefaultCopy($scope.details);
                 preparePhotoGallery(place);
                 modifyTimeForReviews(place);
                 getYelpReviews(place);
                 setTwitterText(place);
                 prepareOpenHoursTable(place);
-                
+
                 $(function () {
-                    setRating();
-                    //$("#rate"+place.place_id).rateYo({ rating: $scope.details.rating, readOnly: true, starWidth: "15px" });
+                    if ($scope.details.reviews != null) {
+                        //review rating
+                        setRating($scope.details.reviews, "");
+                    }
                 });
-                if($scope.details.reviews!=null){
-                    //setRatingN($scope.details.reviews);
+                if (place.rating != null) {
+                    var rate=place.rating/Math.ceil(place.rating)*100+"%";
+                    console.log("rate",rate);
+                    $("#" + place.place_id).rateYo({ rating: rate, readOnly: true, starWidth: "15px" });
+                    $("#" + place.place_id).rateYo("option", "rating", rate);
+                    $("#" + place.place_id).rateYo("option", "numStars", Math.ceil(place.rating));
+                    //
                 }
                 console.log("details obj in callback", $scope.details);
 
                 return $scope.details;
             }
         })
-        adjustViews();
+        adjustViews(index);
 
     }
-    function createDayRow(dayTime,rowType) {
+    function createDayRow(dayTime, rowType) {
         var tr = document.createElement("tr");
         var td1 = document.createElement(rowType);
         var td2 = document.createElement(rowType);
         var day = dayTime.split("y:");
-        td1.appendChild(document.createTextNode(day[0]+"y"));
+        td1.appendChild(document.createTextNode(day[0] + "y"));
         td2.appendChild(document.createTextNode(day[1]));
         tr.appendChild(td1);
         tr.appendChild(td2);
@@ -338,27 +349,27 @@ app.controller("locController", function ($scope, $http) {
     }
     function prepareOpenHoursTable(place) {
         //get todays date
-        var todaysDate=moment(new Date()).utcOffset(place.utc_offset);
+        var todaysDate = moment(new Date()).utcOffset(place.utc_offset);
         console.log(todaysDate);
-        var todaysDay = todaysDate.day()-1;
-        
-        if(todaysDay==-1)todaysDay=6;//Sunday
-        console.log("todaysDay",todaysDay);
+        var todaysDay = todaysDate.day() - 1;
+
+        if (todaysDay == -1) todaysDay = 6;//Sunday
+        console.log("todaysDay", todaysDay);
         if (place.opening_hours != null) {
             var weekSchedule = place.opening_hours.weekday_text;
-            $scope.time=weekSchedule[todaysDay].split("y:")[1];
-            console.log("time",$scope.time);
+            $scope.time = weekSchedule[todaysDay].split("y:")[1];
+            console.log("time", $scope.time);
             for (var i = todaysDay; i < 7; i++) {
                 var tr;
-                if(i==todaysDay){//highlight the current day
-                    tr=createDayRow(weekSchedule[i],"th");
-                }else{
-                    tr=createDayRow(weekSchedule[i],"td");
+                if (i == todaysDay) {//highlight the current day
+                    tr = createDayRow(weekSchedule[i], "th");
+                } else {
+                    tr = createDayRow(weekSchedule[i], "td");
                 }
                 document.getElementById("openHoursTable").append(tr);
             }
             for (var i = 0; i < todaysDay; i++) {
-                var tr=createDayRow(weekSchedule[i],"td");
+                var tr = createDayRow(weekSchedule[i], "td");
                 document.getElementById("openHoursTable").append(tr);
             }
         }
@@ -421,12 +432,12 @@ app.controller("locController", function ($scope, $http) {
             $scope.yelpData = response.data;
             if ($scope.yelpData.message == null) {//has rating
                 $scope.yelpDataDefault = $scope.yelpData.slice(0);
-                
+
                 $(function () {
-                    setRating($scope.yelpData);
+                    setRating($scope.yelpData, "1");
                 });
-            }else{
-                $scope.yelpData ="";
+            } else {
+                $scope.yelpData = [];                
             }
 
         }, function myError(response) {
@@ -435,7 +446,7 @@ app.controller("locController", function ($scope, $http) {
         });
     }
     function setRatingN(reviews) {
-        
+
         //console.log("reviewsAS",reviews);
         for (var i = 0; reviews != null && i < reviews.length; i++) {
             var id = i;
@@ -448,10 +459,17 @@ app.controller("locController", function ($scope, $http) {
         }
 
     }
-    function setRating() {
-        $(".rateyo").rateYo({
-            readOnly: true, starWidth: "15px",normalFill: "white"
+    function setRating(review, index) {
+        $('.rateyo' + index).each(function (i, obj) {
+            $(this).rateYo({
+                readOnly: true, starWidth: "15px", normalFill: "white"
+            });
+            //console.log("review",review[i]);
+            var rate=review[i].rating/Math.ceil(review[i].rating)*100+"%";
+            $(this).rateYo("option", "rating", rate);
+            $(this).rateYo("option", "numStars", Math.ceil(review[i].rating));
         });
+
     }
     function createColumn() {
         var col = document.createElement("div");
@@ -496,27 +514,25 @@ app.controller("locController", function ($scope, $http) {
     function openWindow() {
         window.open(this.src);
     }
-    function adjustViews() {
+    function adjustViews(index) {
 
+        $("#rate1").rateYo("option", "rating", index);
         $scope.showFirstPg = false;
         $scope.showDetailsPg = true;
-        console.log("inViews", $scope.details);
-        console.log("inViews", $scope.showFirstPg);
-        console.log("inViews", $scope.showDetailsPg);
     }
     function toggleVisibility(divId) {
         $("#" + divId).toggle();
     }
     function calculateAndDisplayRoute(directionsService, directionsDisplay) {
         marker.setMap(null);
-        $scope.mapErrorBox=false;
+        $scope.mapErrorBox = false;
         directionsDisplay.setPanel(document.getElementById('directionInfo'));
 
         var selectedMode = document.getElementById('modeOfTransport').value;
 
-        var startLocation=document.getElementById('start').value;
+        var startLocation = document.getElementById('start').value;
         var location;
-        if ( startLocation== "" || startLocation.toUpperCase()=="MY LOCATION") {
+        if (startLocation == "" || startLocation.toUpperCase() == "MY LOCATION") {
             location = { lat: $scope.latitude, lng: $scope.longitude };
         } else {
             location = startLocation;
@@ -537,9 +553,9 @@ app.controller("locController", function ($scope, $http) {
                 directionsDisplay.setDirections(response);
             } else {
                 $scope.$apply(function () {
-                    $scope.mapErrorBox=true;
+                    $scope.mapErrorBox = true;
                 });
-                
+
             }
         });
     }
