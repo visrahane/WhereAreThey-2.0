@@ -3,20 +3,30 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Twitter.png
 */
 var app = angular.module("loadApp", ["ngAnimate"]);
 app.controller("locController", function ($scope, $http) {
-    $scope.nextPageUrl = {};
-    $scope.latitude;
-    $scope.longitude;
-    $scope.pages = [];
-    $scope.yelpData = [];
-    $scope.details = {};
-    $scope.yelpDataDefault = {};
-    $scope.reviewsDefault = {};
-    $scope.twitterLink = "";
-    $scope.fav = JSON.parse(localStorage.getItem("favList"));
-    var currentPage = 0;
-    $scope.map;
-    $scope.time = {};
-
+    $scope.init = function () {
+        $scope.idSelectedResult = -1;
+        $scope.idSelectedFavResult = -1;
+        $scope.disableDetailsBtn = true;
+        $scope.disableFavDetailsBtn = true;
+        $scope.disableLocTxt = true;
+        $scope.resultBlue = true;
+        $scope.searchBtnClicked = false;
+        $scope.nextPageUrl = {};
+        $scope.latitude;
+        $scope.longitude;
+        $scope.pages = [];
+        $scope.yelpData = [];
+        $scope.details = {};
+        $scope.yelpDataDefault = {};
+        $scope.reviewsDefault = {};
+        $scope.twitterLink = "";
+        $scope.fav = JSON.parse(localStorage.getItem("favList"));
+        $scope.favListIndex = 0;
+        currentPage = 0;
+        $scope.map;
+        $scope.time = {};
+    }
+    $scope.init();
     $http({
         method: "GET",
         url: "http://ip-api.com/json"
@@ -53,6 +63,15 @@ app.controller("locController", function ($scope, $http) {
         localStorage.setItem("favList", JSON.stringify($scope.fav));
 
     }
+
+    //clear Btn
+    $scope.clear = function () {
+        $scope.init();
+        document.getElementById("searchForm").reset();
+        $("#resultsNextBtn").hide();
+        $("#resultsPrevBtn").hide();
+    }
+
     $scope.submitFormData = function () {
         if (!$scope.distance) {
             $scope.distance = 10;
@@ -87,12 +106,13 @@ app.controller("locController", function ($scope, $http) {
                 $scope.showNoRecordsBox = true;
             }*/
             if (response.data.next_page_token != null && response.data.next_page_token != "") {
-                //set nextPageToken in nextBtn 
-                toggleVisibility("nextBtn");
+                //set nextPageToken in nextBtn                 
+                $("#resultsNextBtn").show();
                 $scope.nextPageUrl = response.data.next_page_token;
                 //and button should call api when clicked with param nextPageToken
             }
             $scope.showProgressBar = false;
+            $scope.searchBtnClicked = true;
         }, function myError(response) {
             console.log("Error:", response);
             $scope.showErrorBox = true;
@@ -100,24 +120,35 @@ app.controller("locController", function ($scope, $http) {
 
     };
     $scope.fetchPrev = function () {
+
+        $("#resultsNextBtn").show();
+        $("#resultsPrevBtn").show();
+        if (currentPage >= $scope.pages.length) {
+            currentPage = $scope.pages.length - 1;
+        }
         $scope.results = $scope.pages[--currentPage];
         if (currentPage == 0) {
-            toggleVisibility("prevBtn");
-            toggleVisibility("nextBtn");
+            $("#resultsNextBtn").show();
+            $("#resultsPrevBtn").hide();
         }
-        $scope.showProgressBar = false;
+
     }
     $scope.fetchNext = function () {
-        toggleVisibility("nextBtn");
-        toggleVisibility("prevBtn");
-        if (!$scope.pages[currentPage]) {
+        $("#resultsNextBtn").show();
+        $("#resultsPrevBtn").show();
+        //if not in buffer fetch from server
+
+        if (!$scope.pages[currentPage + 1]) {
             getNextPageFromServer();
         } else {
             $scope.results = $scope.pages[++currentPage];
-            if (currentPage == $scope.pages.length) {
-                currentPage--;
+            $("#resultsNextBtn").show();
+            $("#resultsPrevBtn").show();
+            if (currentPage == $scope.pages.length - 1) {
+                $("#resultsNextBtn").hide();
             }
         }
+
     }
     function getNextPageFromServer() {
         $http({
@@ -128,19 +159,31 @@ app.controller("locController", function ($scope, $http) {
             }
         }).then(function mySuccess(response) {
             // var locationJson=JSON.parse(response);            
-            $scope.pages[currentPage] = $scope.results = response.data.results;
+            $scope.pages[currentPage++] = $scope.results = response.data.results;
             if (response.data.next_page_token != null && response.data.next_page_token != "") {
                 //set nextPageToken in nextBtn 
-                toggleVisibility("nextBtn");
+                $("#resultsNextBtn").show();
                 $scope.nextPageUrl = response.data.next_page_token;
-                currentPage++;
+                $("#resultsPrevBtn").show();
 
+            } else {
+                $("#resultsNextBtn").hide();
+                $("#resultsPrevBtn").show();
             }
-            $scope.showProgressBar = false;
+
         }, function myError(response) {
             console.log("Error:", response);
             $scope.showErrorBox = true;
         });
+    }
+    $scope.enableDetailsBtnFavWithId = function (index) {
+        $scope.idSelectedFavResult = index;
+        $scope.disableFavDetailsBtn = false;        
+    }
+
+    $scope.enableDetailsBtnWithId = function (index) {
+        $scope.disableDetailsBtn = false;
+        $scope.idSelectedResult = index        
     }
 
     $scope.initMap = function () {
@@ -157,7 +200,7 @@ app.controller("locController", function ($scope, $http) {
         directionsService = new google.maps.DirectionsService;
         directionsDisplay = new google.maps.DirectionsRenderer;
         directionsDisplay.setMap($scope.map);
-
+        directionsDisplay.setPanel(null);
     }
     var panorama;
     $scope.initStreetView = function () {
@@ -174,9 +217,11 @@ app.controller("locController", function ($scope, $http) {
 
     $scope.setImage = function () {
         if ($scope.showStreetView) {
-            window.focus();
+
             $scope.mapBtnSrc = 'http://cs-server.usc.edu:45678/hw/hw8/images/Pegman.png';
         } else {
+            window.focus();
+            $scope.initStreetView();
             $scope.mapBtnSrc = "http://cs-server.usc.edu:45678/hw/hw8/images/Map.png";
         }
     }
@@ -277,9 +322,10 @@ app.controller("locController", function ($scope, $http) {
     $scope.getDetails = function (result, index) {
         //init config
         $scope.placeIndex = index;
-        console.log("resultObj", result);
-        $scope.idSelectedResult = index;
-        $scope.disableDetailsBtn = false;
+
+        console.log("disableDetailsBtn", $scope.disableDetailsBtn);
+
+        // $scope.disableDetailsBtn = false;
 
         $scope.title = result.name;
         var request = {
@@ -517,6 +563,7 @@ app.controller("locController", function ($scope, $http) {
         $scope.showFirstPg = false;
         $scope.showDetailsPg = true;
     }
+
     function toggleVisibility(divId) {
         $("#" + divId).toggle();
     }

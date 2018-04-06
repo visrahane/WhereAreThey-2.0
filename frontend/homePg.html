@@ -13,7 +13,7 @@
 
 <body ng-app="loadApp" ng-controller="locController" ng-init="disableSearchBtn=true">
     <div class="container">
-        <form name="searchForm">
+        <form name="searchForm" id="searchForm">
             <div class="card bg-light text-dark">
                 <div class="card-body">
                     <h4 class="card-title">Travel and Entertainment Search</h4>
@@ -125,12 +125,13 @@
                             <div class="row">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-3">
-                                    <button type="submit" ng-click="showProgressBar=true;submitFormData()" class="btn btn-primary" ng-disabled="searchForm.$invalid || latitude==null">
+                                    <button type="submit" ng-init="searchBtnClicked=false" ng-click="showProgressBar=true;submitFormData();" class="btn btn-primary"
+                                        ng-disabled="searchForm.$invalid || latitude==null">
 
                                         <span class="fa fa-search"></span>Search
                                     </button>
 
-                                    <button type="button" class="btn btn-outline-secondary">
+                                    <button type="button" class="btn btn-outline-secondary" ng-click="clear()">
                                         Clear
                                     </button>
 
@@ -148,105 +149,127 @@
                 <span ng-class="{'blue-text':!resultBlue}">Results</span>
             </button>
             <button type="button" ng-click="resultBlue=false" ng-class="!resultBlue?'btn btn-primary':'btn btn-outline-light text-dark'">
-                <span ng-class="{'blue-text':resultBlue}">Favorities</span>
+                <span ng-class="{'blue-text':resultBlue}">Favorites</span>
             </button>
         </div>
         <div class="animate-hide-r-l" ng-init="showFirstPg=true" ng-show="showFirstPg">
-            <!--details button -->
-            <div class="detailsBtn">
-                <button type="button" id="detailsBtnId" ng-click="getDetails(fav[idSelectedResult],idSelectedResult)" class="btn btn-outline-dark"
-                    ng-init="disableDetailsBtn=true" ng-disabled="disableDetailsBtn" ng-hide="!resultBlue||results==null || results.length==0">
-                    Details
-                </button>
+
+            <div class="resultsPage" ng-hide="!resultBlue || results==null || results.length==0">
+                <!--details button -->
+                <div class="detailsBtn">
+                    <button type="button" id="detailsBtnId" ng-click="getDetails(results[idSelectedResult],idSelectedResult)" class="btn btn-outline-dark"
+                        ng-init="disableDetailsBtn=true" ng-disabled="disableDetailsBtn" ng-hide="!resultBlue||results==null || results.length==0">
+                        Details
+                    </button>
+                </div>
+
+                <!--search results table -->
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <th>#</th>
+                            <th>Category</th>
+                            <th>Name</th>
+                            <th>Address</th>
+                            <th>Favorite</th>
+                            <th>Details</th>
+                        </tr>
+                        <tr ng-repeat="result in results track by $index" ng-class="{selected: $index === idSelectedResult}">
+                            <td>{{$index+1}}</td>
+                            <td>
+                                <img style="height: 45px; width: 45px;" ng-src="{{ result.icon }}" />
+                            </td>
+                            <td>{{ result.name }}</td>
+                            <td>{{ result.vicinity }}</td>
+                            <td>
+                                <button class="btn btn-outline-dark" ng-click="saveToFav($index)">
+                                    <span ng-class="isFav(result)?'fa fa-star':'fa fa-star-o'"></span>
+                                </button>
+                            </td>
+                            <td>
+                                <button class="btn btn-outline-dark" ng-click="enableDetailsBtnWithId($index);getDetails(result,$index)">
+                                    <span class="fa fa-angle-right" style="font-size: 19px;"></span>
+                                </button>
+
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!--Pagination buttons -->
+                <div class="text-center">
+                    <button type="button" id="resultsPrevBtn" ng-init="disablePrevBtn=true" class="btn btn-outline-dark equal-btn hidden" ng-click="fetchPrev()"
+                        style="margin-right:18px">
+                        Previous
+                    </button>
+                    <button type="button" id="resultsNextBtn" ng-init="disableNextBtn=true" class="btn btn-outline-dark equal-btn hidden" ng-click="fetchNext()">
+                        Next
+                    </button>
+                </div>
+                <!--No records box -->
+                <div class="alert alert-warning" ng-init="showNoRecordsBox=false" ng-show="searchBtnClicked && (results==null || results.length==0)">
+                    No records.
+                </div>
             </div>
 
-            <!--search results table -->
-            <div class="table-responsive" ng-hide="!resultBlue || results==null || results.length==0">
-                <table class="table">
-                    <tr>
-                        <th>#</th>
-                        <th>Category</th>
-                        <th>Name</th>
-                        <th>Address</th>
-                        <th>Favorite</th>
-                        <th>Details</th>
-                    </tr>
-                    <tr ng-repeat="result in results track by $index" ng-class="{selected: $index === idSelectedResult}">
-                        <td>{{$index+1}}</td>
-                        <td>
-                            <img style="height: 45px; width: 45px;" ng-src="{{ result.icon }}" />
-                        </td>
-                        <td>{{ result.name }}</td>
-                        <td>{{ result.vicinity }}</td>
-                        <td>
-                            <button class="btn btn-outline-dark" ng-click="saveToFav($index)">
-                                <span ng-class="isFav(result)?'fa fa-star':'fa fa-star-o'"></span>
-                            </button>
-                        </td>
-                        <td>
-                            <button class="btn btn-outline-dark" ng-click="getDetails(result,$index)">
-                                <span class="fa fa-angle-right" style="font-size: 19px;"></span>
-                            </button>
-
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            <!--No records box -->
-            <div class="alert alert-warning" ng-init="showNoRecordsBox=false" ng-show="showNoRecordsBox||results.length == 0">
-                No records.
-            </div>
             <!--fav table -->
-            <div class="detailsBtn">
-                <button type="button" id="detailsBtnId" ng-click="getDetails(fav[idSelectedResult],idSelectedResult)" class="btn btn-outline-dark"
-                    ng-init="disableDetailsBtn=true" ng-disabled="disableDetailsBtn" ng-hide="resultBlue|| fav==null || fav.length==0">
-                    Details
-                </button>
-            </div>
-            <div class="table-responsive" ng-hide="resultBlue || fav==null || fav.length==0">
-                <table class="table">
-                    <tr>
-                        <th>#</th>
-                        <th>Category</th>
-                        <th>Name</th>
-                        <th>Address</th>
-                        <th>Favorite</th>
-                        <th>Details</th>
-                    </tr>
-                    <tr ng-repeat="result in fav track by $index" ng-class="{selected: $index === idSelectedResult}">
-                        <td>{{$index+1}}</td>
-                        <td>
-                            <img style="height: 45px; width: 45px;" ng-src="{{ result.icon }}" />
-                        </td>
-                        <td>{{ result.name }}</td>
-                        <td>{{ result.vicinity }}</td>
-                        <td>
-                            <button class="btn btn-outline-dark" ng-click="deleteFav($index)">
-                                <span class="fa fa-trash"></span>
-                            </button>
-                        </td>
-                        <td>
-                            <button class="btn btn-outline-dark" ng-click="getDetails(result,$index);">
-                                <span class="fa fa-angle-right" style="font-size: 19px;"></span>
-                            </button>
+            <div class="fav" ng-hide="resultBlue || fav==null || fav.length==0">
+                <div class="detailsBtn">
+                    <button type="button" id="detailsBtnId" ng-click="getDetails(fav[idSelectedFavResult],idSelectedFavResult)" class="btn btn-outline-dark"
+                        ng-init="disableFavDetailsBtn=true" ng-disabled="disableFavDetailsBtn" ng-hide="resultBlue|| fav==null || fav.length==0">
+                        Details
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <th>#</th>
+                            <th>Category</th>
+                            <th>Name</th>
+                            <th>Address</th>
+                            <th>Favorite</th>
+                            <th>Details</th>
+                        </tr>
+                        <tr ng-repeat="result in fav track by $index" ng-class="{selected: $index == idSelectedFavResult}">
+                            <td>{{$index+1}}</td>
+                            <td>
+                                <img style="height: 45px; width: 45px;" ng-src="{{ result.icon }}" />
+                            </td>
+                            <td>{{ result.name }}</td>
+                            <td>{{ result.vicinity }}</td>
+                            <td>
+                                <button class="btn btn-outline-dark" ng-click="deleteFav($index)">
+                                    <span class="fa fa-trash"></span>
+                                </button>
+                            </td>
+                            <td>
+                                <button class="btn btn-outline-dark" ng-click="getDetails(result,$index);enableDetailsBtnFavWithId($index)">
+                                    <span class="fa fa-angle-right" style="font-size: 19px;"></span>
+                                </button>
 
-                        </td>
-                    </tr>
-                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!--Pagination buttons -->
+                <div class="text-center">
+                    <button type="button" ng-show="favListIndex>20" id="prevBtn" class="btn btn-outline-dark equal-btn hidden" ng-click="fetchPrev()"
+                        style="margin-right:18px">
+                        Previous
+                    </button>
+                    <button type="button" ng-show="fav.length>20" id="nextBtn" class="btn btn-outline-dark equal-btn hidden" ng-click="fetchNext()">
+                        Next
+                    </button>
+                </div>
+                <!--No records fav box -->
+                <div class="alert alert-warning" style="margin-top:10%" ng-init="" ng-show="!resultBlue && (fav==null || fav.length==0)">
+                    No records.
+                </div>
             </div>
-            <!--No records fav box -->
-            <div class="alert alert-warning" style="margin-top:10%" ng-init="" ng-show="!resultBlue && fav!=null && fav.length!=0">
-                No records.
-            </div>
-            <!--Pagination buttons -->
-            <div class="text-center">
-                <button type="button" id="prevBtn" class="btn btn-outline-dark equal-btn hidden" ng-click="fetchPrev()" style="margin-right:18px">
-                    Previous
-                </button>
-                <button type="button" id="nextBtn" class="btn btn-outline-dark equal-btn hidden" ng-click="fetchNext()">
-                    Next
-                </button>
-            </div>
+
+            <!--fav div -->
+
         </div>
 
         <!--Progress Bar -->
@@ -374,7 +397,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                     </div>
                     <!-- Photos Gallery -->
                     <div id="photos" class="container tab-pane fade">
