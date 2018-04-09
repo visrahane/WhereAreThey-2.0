@@ -26,6 +26,7 @@ app.controller("locController", function ($scope, $http) {
         currentPage = 0;
         $scope.map;
         $scope.time = {};
+        
     }
     $scope.init();
     $http({
@@ -67,10 +68,16 @@ app.controller("locController", function ($scope, $http) {
 
     //clear Btn
     $scope.clear = function () {
-        $scope.init();
+        $scope.init();        
+        $scope.searchForm.$setPristine();
+        $scope.searchForm.$setUntouched();
+        $scope.searchForm.$invalid = true;
+        console.log($scope.searchForm.$pristine);
+        console.log($scope.searchForm.$invalid);        
         document.getElementById("searchForm").reset();
         $("#resultsNextBtn").hide();
         $("#resultsPrevBtn").hide();
+        $scope.model = '';
     }
 
     $scope.submitFormData = function () {
