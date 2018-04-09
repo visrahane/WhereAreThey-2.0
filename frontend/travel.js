@@ -15,6 +15,7 @@ app.controller("locController", function ($scope, $http) {
         $scope.latitude;
         $scope.longitude;
         $scope.pages = [];
+        $scope.results = [];
         $scope.yelpData = [];
         $scope.details = {};
         $scope.yelpDataDefault = {};
