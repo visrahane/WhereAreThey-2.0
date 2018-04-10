@@ -1,7 +1,10 @@
 .card-body h4 {
     text-align: center;
 }
-nav nav-tabs justify-content-end {
+.form-control.ng-invalid.ng-touched {
+    border-color: red;
+}
+.nav nav-tabs justify-content-end {
     width: 100%;
 }
 .text-center{

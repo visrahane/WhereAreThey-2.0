@@ -21,12 +21,15 @@ app.controller("locController", function ($scope, $http) {
         $scope.yelpDataDefault = {};
         $scope.reviewsDefault = {};
         $scope.twitterLink = "";
+        $scope.showFirstPg=true;
+        $scope.showDetailsPg=false;
+        
         $scope.fav = JSON.parse(localStorage.getItem("favList"));
         $scope.favListIndex = 0;
         currentPage = 0;
         $scope.map;
         $scope.time = {};
-        
+
     }
     $scope.init();
     $http({
@@ -57,7 +60,7 @@ app.controller("locController", function ($scope, $http) {
         return favorite;
     }
     $scope.saveToFav = function (index) {
-        console.log("isFav-", index);
+        //console.log("isFav-", index);
         if (!$scope.fav) {
             $scope.fav = [];
         }
@@ -68,12 +71,12 @@ app.controller("locController", function ($scope, $http) {
 
     //clear Btn
     $scope.clear = function () {
-        $scope.init();        
+        $scope.init();
         $scope.searchForm.$setPristine();
         $scope.searchForm.$setUntouched();
         $scope.searchForm.$invalid = true;
         console.log($scope.searchForm.$pristine);
-        console.log($scope.searchForm.$invalid);        
+        console.log($scope.searchForm.$invalid);
         document.getElementById("searchForm").reset();
         $("#resultsNextBtn").hide();
         $("#resultsPrevBtn").hide();
@@ -186,12 +189,12 @@ app.controller("locController", function ($scope, $http) {
     }
     $scope.enableDetailsBtnFavWithId = function (index) {
         $scope.idSelectedFavResult = index;
-        $scope.disableFavDetailsBtn = false;        
+        $scope.disableFavDetailsBtn = false;
     }
 
     $scope.enableDetailsBtnWithId = function (index) {
         $scope.disableDetailsBtn = false;
-        $scope.idSelectedResult = index        
+        $scope.idSelectedResult = index
     }
 
     $scope.initMap = function () {
@@ -331,7 +334,7 @@ app.controller("locController", function ($scope, $http) {
         //init config
         $scope.placeIndex = index;
 
-        console.log("disableDetailsBtn", $scope.disableDetailsBtn);
+        console.log("$scope", $scope.location);
 
         // $scope.disableDetailsBtn = false;
 
@@ -585,7 +588,11 @@ app.controller("locController", function ($scope, $http) {
         var startLocation = document.getElementById('start').value;
         var location;
         if (startLocation == "" || startLocation.toUpperCase() == "MY LOCATION") {
-            location = { lat: $scope.latitude, lng: $scope.longitude };
+            if (!document.getElementById("locationOther").disabled) {
+                location = document.getElementById("locationOther").value;
+            } else {
+                location = { lat: $scope.latitude, lng: $scope.longitude };
+            }
         } else {
             location = startLocation;
         }
