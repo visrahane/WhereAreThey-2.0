@@ -12,20 +12,20 @@ exports.getSearchResults = function (request, response) {
             //console.log(geoLocationJson);
             request.query.latitude = geoLocationJson["results"][0]["geometry"]["location"]["lat"];
             request.query.longitude = geoLocationJson["results"][0]["geometry"]["location"]["lng"];
+            var queryObj=prepareQueryObj(request.query);
+            callGooglePlaces(queryObj, function (googlePlacesJson) {
+                console.log("Api Response:",googlePlacesJson);
+                response.send(googlePlacesJson);
+            });
+        });
+    }else{
+        var queryObj=prepareQueryObj(request.query);
+        callGooglePlaces(queryObj, function (googlePlacesJson) {
+                console.log("Api Response:",googlePlacesJson);
+                response.send(googlePlacesJson);
         });
     }
-    var queryObj = {
-        location: request.query.latitude + "," + request.query.longitude,
-        key: GOOGLE_KEY, 
-        radius:request.query.distance * 1609.34,
-        type:request.query.category,
-        keyword:request.query.keyword
-    };
-    callGooglePlaces(queryObj, function (googlePlacesJson) {
-        console.log("Api Response:",googlePlacesJson);
-        response.send(googlePlacesJson);
-    });
-    
+ 
 };
 //get next search api
 exports.getNextSearchResults=function(request,response){
@@ -38,8 +38,18 @@ exports.getNextSearchResults=function(request,response){
         response.send(googlePlacesJson);
     });
 };
-
-function callGooglePlaces(query, callback) {        
+function prepareQueryObj(query){
+    var queryObj = {
+        location: query.latitude + "," + query.longitude,
+        key: GOOGLE_KEY, 
+        radius:query.distance * 1609.34,
+        type:query.category,
+        keyword:query.keyword
+    };
+    return queryObj;
+}
+function callGooglePlaces(query, callback) {
+    console.log("googleCall-",query);       
     httpRequest.get({ url: GOOGLE_NEARBY_SEARCH_API, qs: query }, (error, response, body) => {
         var googlePlacesJson = JSON.parse(body);
         return callback(googlePlacesJson);
