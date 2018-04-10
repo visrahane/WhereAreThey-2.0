@@ -26,7 +26,7 @@
                                 </label>
                             </div>
                             <div class="col-sm-6">
-                                <input type="text" pattern="^\S+$" ng-model="keyword" class="form-control" id="keyword" name="keyword" required>
+                                <input type="text" ng-model="keyword" class="form-control" id="keyword" name="keyword" required>
                                 <span style="color:red" ng-show="searchForm.keyword.$touched && searchForm.keyword.$invalid">Please enter a keyword.</span>
                             </div>
 
@@ -265,7 +265,7 @@
 
             </div>
             <!--No records fav box -->
-            <div class="alert alert-warning" style="margin-top:10%" ng-init="" ng-show="!resultBlue && (fav==null || fav.length==0)">
+            <div class="alert alert-warning" style="margin-top:10%" ng-show="!resultBlue && (fav==null || fav.length==0)">
                 No records.
             </div>
             <!--fav div -->
@@ -404,7 +404,7 @@
                         <div class="row" id="photoRow">
                         </div>
                         <!--No records box -->
-                        <div class="alert alert-warning" style="margin-top:10%" ng-init="" ng-show="details.photos==null || details.photos.length == 0">
+                        <div class="alert alert-warning" style="margin-top:10%" ng-show="details.photos==null || details.photos.length == 0">
                             No records.
                         </div>
                     </div>
@@ -427,7 +427,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-sm-4">
-                                    <input type="text" class="form-control" id="start" placeholder="Your Location">
+                                    <input type="text" class="form-control" id="start" placeholder="{{location==null?'Your Location':location}}">
                                 </div>
                                 <div class="col-sm-4">
                                     <input type="text" class="form-control" id="dest" readonly ng-model="destinationLoc">
@@ -472,8 +472,8 @@
                                     {{selectedReview}}
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" ng-click="selectedReview='Google Reviews'">Google Reviews</a>
-                                    <a class="dropdown-item" ng-click="selectedReview='Yelp Reviews'">Yelp Reviews</a>
+                                    <a class="dropdown-item" ng-click="selectedReview='Google Reviews';selectedOrder='Default Order';">Google Reviews</a>
+                                    <a class="dropdown-item" ng-click="selectedReview='Yelp Reviews';selectedOrder='Default Order'">Yelp Reviews</a>
 
                                 </div>
                             </div>
@@ -515,7 +515,7 @@
 
                             </div>
                             <!--No records box -->
-                            <div class="alert alert-warning" style="margin-top:10%" ng-init="" ng-show="details.reviews==null || details.reviews.length == 0">
+                            <div class="alert alert-warning" style="margin-top:10%" ng-show="details.reviews==null || details.reviews.length == 0">
                                 No records.
                             </div>
                         </div>
@@ -540,7 +540,7 @@
 
                             </div>
                             <!--No records box -->
-                            <div class="alert alert-warning" style="margin-top:10%" ng-init="" ng-show="yelpData==null || yelpData.length == 0">
+                            <div class="alert alert-warning" style="margin-top:10%" ng-show="yelpData==null || yelpData.length == 0">
                                 No records.
                             </div>
                         </div>

@@ -7,9 +7,16 @@ app.controller("locController", function ($scope, $http) {
         $scope.idSelectedResult = -1;
         $scope.idSelectedFavResult = -1;
         $scope.disableDetailsBtn = true;
+        $scope.disablePrevBtn = true;
+        $scope.disableNextBtn = true;
         $scope.disableFavDetailsBtn = true;
+        $scope.showStreetView = false;
         $scope.disableLocTxt = true;
+        $scope.mapBtnSrc = 'http://cs-server.usc.edu:45678/hw/hw8/images/Pegman.png';
+        $scope.mapErrorBox = false;
         $scope.resultBlue = true;
+        $scope.selectedReview = 'Google Reviews';
+        $scope.selectedOrder = 'Default Order';
         $scope.searchBtnClicked = false;
         $scope.nextPageUrl = {};
         $scope.latitude;
@@ -21,15 +28,16 @@ app.controller("locController", function ($scope, $http) {
         $scope.yelpDataDefault = {};
         $scope.reviewsDefault = {};
         $scope.twitterLink = "";
-        $scope.showFirstPg=true;
-        $scope.showDetailsPg=false;
-        
+        $scope.showFirstPg = true;
+        $scope.showDetailsPg = false;
+        $scope.category = 'default'
         $scope.fav = JSON.parse(localStorage.getItem("favList"));
         $scope.favListIndex = 0;
         currentPage = 0;
         $scope.map;
         $scope.time = {};
-
+        $scope.showProgressBar = false;
+        $scope.showErrorBox = false;
     }
     $scope.init();
     $http({
