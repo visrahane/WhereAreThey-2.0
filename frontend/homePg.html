@@ -417,21 +417,33 @@
                                 <div class="row">
                                     <div class="col-sm-4">
                                         <label for="from">From</label>
+                                        <input type="text" class="form-control" name="start" ng-model="start" id="start" placeholder="{{location==null?'Your Location':location}}"
+                                            required>
                                     </div>
                                     <div class="col-sm-4">
                                         <label for="to">To</label>
+                                        <input type="text" class="form-control" id="dest" readonly ng-model="destinationLoc">
                                     </div>
                                     <div class="col-sm-2">
                                         <label for="from">Travel Mode</label>
+                                        <select class="form-control" id="modeOfTransport">
+                                            <option value="DRIVING" selected>Driving</option>
+                                            <option value="WALKING">Walking</option>
+                                            <option value="BICYCLING">Bicycling</option>
+                                            <option value="TRANSIT">Transit</option>
+                                        </select>
                                     </div>
                                     <div class="col-sm-2">
+                                        <button type="button" class="btn btn-primary" ng-click="getDirections()" ng-disabled="mapForm.start.$touched && mapForm.start.$invalid">
+                                            Get Directions
+                                        </button>
                                     </div>
                                 </div>
+                                <!--
                                 <div class="row">
                                     <div class="col-sm-4">
                                         <input type="text" class="form-control" name="start" ng-model="start" id="start" placeholder="{{location==null?'Your Location':location}}"
                                             required>
-
                                     </div>
                                     <div class="col-sm-4">
                                         <input type="text" class="form-control" id="dest" readonly ng-model="destinationLoc">
@@ -450,6 +462,7 @@
                                         </button>
                                     </div>
                                 </div>
+                                -->
                             </div>
 
                             <!--PegMan -->
@@ -503,18 +516,22 @@
                             <div ng-repeat="review in details.reviews track by $index" class="row" style="margin-top: 1%">
                                 <div class="card" style="width:100%">
                                     <div class="card-body">
-
-                                        <a href={{review.author_url}} target="_blank">
-                                            <img style="width:4%" ng-src="{{review.profile_photo_url}}" class="img-fluid rounded-circle">
-                                        </a>
-                                        <div style="margin-left: 5%;margin-top: -4%;">
-                                            <a href={{review.author_url}} target="_blank">{{review.author_name}}</a>
-                                            <div class="oneLine">
-                                                <div id="" class="rateyo oneLineDiv" data-rateyo-rating={{review.rating}}></div>
-
-                                                <p class="oneLineDiv">{{review.time}}</p>
+                                        <div class="row">
+                                            <div class="col-sm-1">
+                                                <a href={{review.author_url}} target="_blank">
+                                                    <img ng-src="{{review.profile_photo_url}}" class="img-fluid rounded-circle">
+                                                </a>
                                             </div>
-                                            <div>{{review.text}}</div>
+                                            <div class="col-sm-11">
+                                                <a href={{review.author_url}} target="_blank">{{review.author_name}}</a>
+                                                <div class="oneLine">
+                                                    <div id="" class="rateyo oneLineDiv" data-rateyo-rating={{review.rating}}></div>
+
+                                                    <p class="oneLineDiv">{{review.time}}</p>
+                                                </div>
+                                                <div>{{review.text}}</div>
+
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -530,16 +547,20 @@
                             <div ng-repeat="review in yelpData track by $index" class="row" style="margin-top: 1%">
                                 <div class="card" style="width:100%">
                                     <div class="card-body">
-                                        <a href={{review.url}} target="_blank">
-                                            <img style="width:4%" ng-src="{{review.user.image_url}}" class="img-fluid rounded-circle">
-                                        </a>
-                                        <div style="margin-left: 5%;margin-top: -4%;">
-                                            <a href={{review.url}} target="_blank">{{review.user.name}}</a>
-                                            <div class="oneLine">
-                                                <div id="" class=" rateyo1 oneLineDiv" data-rateyo-rating={{review.rating}}></div>
-                                                <p class="oneLineDiv">{{review.time_created}}</p>
+                                        <div class="row">
+                                            <div class="col-sm-1">
+                                                <a href={{review.url}} target="_blank">
+                                                    <img ng-src="{{review.user.image_url}}" class="img-fluid rounded-circle">
+                                                </a>
                                             </div>
-                                            <div>{{review.text}}</div>
+                                            <div class="col-sm-11">
+                                                <a href={{review.url}} target="_blank">{{review.user.name}}</a>
+                                                <div class="oneLine">
+                                                    <div id="" class=" rateyo1 oneLineDiv" data-rateyo-rating={{review.rating}}></div>
+                                                    <p class="oneLineDiv">{{review.time_created}}</p>
+                                                </div>
+                                                <div>{{review.text}}</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
