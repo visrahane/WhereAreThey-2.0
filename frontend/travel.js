@@ -444,7 +444,8 @@ app.controller("locController", function ($scope, $http) {
         }
         var params = jQuery.param({
             text: 'Check out ' + place.name + " located at " + place.formatted_address + ". Website:",
-            url: websiteUrl
+            url: websiteUrl,
+            hashtags: "TravelAndEntertainmentSearch"
         });
         var s = "https://twitter.com/intent/tweet?" + params;
         $scope.twitterLink = s;
