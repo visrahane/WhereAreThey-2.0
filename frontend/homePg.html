@@ -439,32 +439,9 @@
                                         </button>
                                     </div>
                                 </div>
-                                <!--
-                                <div class="row">
-                                    <div class="col-sm-4">
-                                        <input type="text" class="form-control" name="start" ng-model="start" id="start" placeholder="{{location==null?'Your Location':location}}"
-                                            required>
-                                    </div>
-                                    <div class="col-sm-4">
-                                        <input type="text" class="form-control" id="dest" readonly ng-model="destinationLoc">
-                                    </div>
-                                    <div class="col-sm-2">
-                                        <select class="form-control" id="modeOfTransport">
-                                            <option value="DRIVING" selected>Driving</option>
-                                            <option value="WALKING">Walking</option>
-                                            <option value="BICYCLING">Bicycling</option>
-                                            <option value="TRANSIT">Transit</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-sm-2">
-                                        <button type="button" style="margin-left:15%;" class="btn btn-primary" ng-click="getDirections()" ng-disabled="mapForm.start.$touched && mapForm.start.$invalid">
-                                            Get Directions
-                                        </button>
-                                    </div>
-                                </div>
-                                -->
+                                
                             </div>
-
+                        </form>
                             <!--PegMan -->
                             <button type="button" class="btn btn-outline-secondary" ng-init="showStreetView=false" ; ng-click="setImage();showStreetView=!showStreetView">
                                 <img ng-src={{mapBtnSrc}} ng-init="mapBtnSrc='http://cs-server.usc.edu:45678/hw/hw8/images/Pegman.png'" style="height: 32px;width: 32px;">
@@ -477,7 +454,7 @@
                             <div class="alert alert-danger" ng-init="mapErrorBox=false" ng-show="mapErrorBox">
                                 Failed To get search results.
                             </div>
-                        </form>
+                        
                     </div>
 
                     <!-- Reviews-->
