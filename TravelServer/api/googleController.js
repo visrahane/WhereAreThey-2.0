@@ -38,6 +38,19 @@ exports.getNextSearchResults=function(request,response){
         response.send(googlePlacesJson);
     });
 };
+
+//get place details api
+exports.getPlaceDetails=function(request,response){
+    var query={
+        key: GOOGLE_KEY,
+        place_id: request.query.placeId
+    }
+    callGoogleDetails(query,function(googleDetailsJson){
+        console.log("Google Details Response-",googleDetailsJson);
+        response.send(googleDetailsJson);
+    });
+};
+
 function prepareQueryObj(query){
     var queryObj = {
         location: query.latitude + "," + query.longitude,
@@ -53,6 +66,14 @@ function callGooglePlaces(query, callback) {
     httpRequest.get({ url: GOOGLE_NEARBY_SEARCH_API, qs: query }, (error, response, body) => {
         var googlePlacesJson = JSON.parse(body);
         return callback(googlePlacesJson);
+    });
+}
+
+function callGoogleDetails(query, callback) {
+    console.log("googleCall-",query);       
+    httpRequest.get({ url: GOOGLE_PLACES_DETAILS_API, qs: query }, (error, response, body) => {
+        var googleDetailsJson = JSON.parse(body);
+        return callback(googleDetailsJson);
     });
 }
 
