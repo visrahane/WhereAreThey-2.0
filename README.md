@@ -14,6 +14,5 @@ Q) What has changed in WhereAreThey-2.0?
 </ul>
 All you need to know about the project is <a href="https://github.com/visrahane/WhereAreThey-2.0/blob/master/HW8_Description.pdf">here</a>
 
-<a href="http://www-scf.usc.edu/~rahane/visHomeW8/homePg.html">Try it</a><br>
 <a href="https://www.youtube.com/watch?v=5OTM7qBMxfM"> Website Demo </a><br>
 <a href="https://www.youtube.com/watch?v=mlR3Ve8rDg8">Mobile website demo</a>
